@@ -154,8 +154,9 @@ function updateTimeSlicer(filteredData) {
   }
 }
 
-
-
+document.getElementById("dateFilter").addEventListener("change", applyFilters);
+document.getElementById("networkFilter").addEventListener("change", applyFilters);
+document.getElementById("timeFilter").addEventListener("change", applyFilters);
     
   // Keep data available globally for later steps
   window.gameData = data;
