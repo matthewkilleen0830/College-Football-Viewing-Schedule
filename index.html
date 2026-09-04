@@ -6,177 +6,394 @@
   <title>College Football Broadcast Dashboard</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <style>
-    body {
+    html, body {
+      height: 100%;
+      margin: 0;
       background-color: #f8f9fa;
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+    .main-wrapper {
+      min-height: 98vh;
+      display: flex;
+      flex-direction: column;
     }
     .filter-panel {
       background-color: #fff;
       border-radius: 8px;
-      padding: 1rem;
+      padding: 1.25rem;
       box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+      height: 100%;
     }
     .chart-container {
       background-color: #fff;
       border-radius: 8px;
-      padding: 1rem;
+      padding: 1.25rem;
       box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-      height: 70vh;
+      height: 96vh;
+      display: flex;
+      flex-direction: column;
+    }
+    #barChart {
+      width: 100%;
+      flex-grow: 1;
+      min-height: 50vh;
     }
   </style>
 </head>
 <body>
-  <div class="container-fluid mt-4">
-    <div class="row mb-3">
-      <div class="col-md-3 filter-panel">
-        <h5 class="mb-3">Selections</h5>
-        <div class="mb-3">
-          <label for="dateFilter" class="form-label">Date</label>
-          <select id="dateFilter" class="form-select"></select>
-        </div>
-        <div class="mb-3">
-          <label for="networkFilter" class="form-label">TV Provider</label>
-          <select id="networkFilter" class="form-select" multiple></select>
-        </div>
-        <div class="mb-3">
-          <label for="timeFilter" class="form-label">Kickoff Time (Eastern)</label>
-          <select id="timeFilter" class="form-select"></select>
+  <div class="container-fluid px-4 py-3 main-wrapper">
+    <div class="row g-3 flex-grow-1">
+      <div class="col-md-2">
+        <div class="filter-panel">
+          <h5 class="mb-3">Selections</h5>
+
+          <div class="mb-3">
+            <label for="dateFilter" class="form-label">Date</label>
+            <select id="dateFilter" class="form-select"></select>
+          </div>
+
+          <div class="mb-3">
+            <label for="networkFilter" class="form-label">TV Provider</label>
+            <select id="networkFilter" class="form-select" multiple size="8"></select>
+          </div>
+
+          <div class="mb-3">
+            <label for="timeFilter" class="form-label">Kickoff Time (Eastern)</label>
+            <select id="timeFilter" class="form-select"></select>
+          </div>
         </div>
       </div>
 
-      <div class="col-md-9">
+      <div class="col-md-10">
         <div class="chart-container">
-          <h5 class="mb-3">College Football Guide</h5>
+          <h5 class="mb-2">College Football Guide</h5>
           <div id="barChart"></div>
         </div>
       </div>
     </div>
   </div>
 
-<script src="https://d3js.org/d3.v7.min.js"></script>
-<script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+  <script src="https://d3js.org/d3.v7.min.js"></script>
+  <script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
 
-<script>
-d3.csv("01_weekFull.csv").then(data => {
+  <script>
+    const TEAM_COLORS = {
+      // Big Ten
+      "Michigan": "#00274C",
+      "Ohio State": "#BB0000",
+      "Penn State": "#041E42",
+      "Oregon": "#007030",
+      "USC": "#990000",
+      "Washington": "#4B2E83",
+      "Iowa": "#000000",
+      "Wisconsin": "#C5050C",
+      "Nebraska": "#E31837",
+      "Minnesota": "#7A0019",
+      "Rutgers": "#CC0033",
+      "Illinois": "#E84A27",
+      "Indiana": "#990000",
+      "Michigan State": "#18453B",
+      "Purdue": "#000000",
+      "Northwestern": "#4E2A84",
+      "UCLA": "#2D68C4",
+      "Maryland": "#E21A23",
 
-  window.gameData = data;
+      // SEC
+      "Alabama": "#9E1B32",
+      "Georgia": "#BA0C2F",
+      "LSU": "#461D7C",
+      "Texas": "#BF5700",
+      "Oklahoma": "#841617",
+      "Tennessee": "#FF8200",
+      "Texas A&M": "#500000",
+      "Missouri": "#000000",
+      "Ole Miss": "#182B49",
+      "Auburn": "#0C2340",
+      "Florida": "#0021A5",
+      "Arkansas": "#9D2235",
+      "South Carolina": "#73000A",
+      "Kentucky": "#0033A0",
+      "Mississippi State": "#660000",
+      "Vanderbilt": "#866D4B",
 
-  // -----------------------------
-  // APPLY FILTERS
-  // -----------------------------
-  function applyFilters() {
+      // ACC
+      "Clemson": "#F56600",
+      "Florida State": "#782F40",
+      "Miami": "#F47321",
+      "North Carolina": "#7BAFD4",
+      "NC State": "#CC0000",
+      "Virginia Tech": "#630031",
+      "Duke": "#003087",
+      "Wake Forest": "#9E7E38",
+      "Syracuse": "#D44500",
+      "Pittsburgh": "#003594",
+      "Pitt": "#003594",
+      "Louisville": "#AD0000",
+      "Georgia Tech": "#B3A369",
+      "Virginia": "#232D4B",
 
-    // 1. Capture current selections BEFORE filtering
-    const selectedDate = document.getElementById("dateFilter").value;
-    const selectedNetworks = Array.from(document.getElementById("networkFilter").selectedOptions).map(o => o.value);
-    const selectedTime = document.getElementById("timeFilter").value;
+      // Big 12
+      "Utah": "#CC0000",
+      "Kansas State": "#512888",
+      "Oklahoma State": "#FF7500",
+      "TCU": "#4D1979",
+      "Baylor": "#154734",
+      "Texas Tech": "#CC0000",
+      "Colorado": "#CFB87C",
+      "BYU": "#002E5D",
+      "UCF": "#BA9B37",
+      "Arizona": "#CC0003",
+      "Houston": "#C8102E",
+      "West Virginia": "#002855",
+      "Iowa State": "#C8102E",
 
-    // 2. Filter dataset
-    let filtered = window.gameData;
+      // Independent & Others
+      "Notre Dame": "#0C2340",
+      "Navy": "#00205B",
+      "Army": "#D4BF91",
+      "Air Force": "#003087",
+      "Morehead State": "005EB8",
+      "Samford": "002649",
+      "Stanford": "8C1515",
+      "Eastern Michigan": "006633",
+      "Marist": "C8102E",
+      "Jackson State": "002147",
+      "Colorado State": "1E4D2B",
+      "San Diego State": "000000",
+      "North Dakota State": "00583D",
+      "Hawai'i": "024731",
+      "Tulsa": "003595",
+      "Utah State": "00263A",
+      "Nevada": "003366",
+      "New Mexico": "BA0C2F",
+      "Stetson": "00523E",
+      "South Carolina State": "001A72",
+      "Prairie View A&M": "330066"
+    };
 
-    if (selectedDate) {
-      filtered = filtered.filter(d => d.Date === selectedDate);
-    }
+    // Load CSV and handle BOM/headers safely
+    d3.csv("01_weekFull.csv", raw => {
+      const clean = {};
+      Object.keys(raw).forEach(key => {
+        const normalizedKey = key.replace(/^\uFEFF/, "");
+        clean[normalizedKey] = raw[key];
+      });
+      return clean;
+    }).then(data => {
+      window.gameData = data;
 
-    if (selectedNetworks.length > 0) {
-      filtered = filtered.filter(d => selectedNetworks.includes(d.TV_Network));
-    }
+      const initialDate = getFirstAvailableDate(window.gameData);
+      updateDateSlicer(window.gameData, initialDate);
+      updateCascadingFilters();
+      applyFilters();
 
-    if (selectedTime) {
-      filtered = filtered.filter(d => d.Start_Time === selectedTime);
-    }
-
-    // 3. Update slicers based on filtered dataset
-    updateDateSlicer(filtered, selectedDate);
-    updateNetworkSlicer(filtered, selectedNetworks);
-    updateTimeSlicer(filtered, selectedTime);
-
-    // Chart update will come later
-  }
-
-  // -----------------------------
-  // DATE SLICER
-  // -----------------------------
-  function updateDateSlicer(filteredData, selectedDate) {
-    const uniqueDates = Array.from(new Set(filteredData.map(d => d.Date)))
-      .sort((a, b) => new Date(a) - new Date(b));
-
-    const dateSelect = document.getElementById("dateFilter");
-    dateSelect.innerHTML = "";
-
-    uniqueDates.forEach(date => {
-      const opt = document.createElement("option");
-      opt.value = date;
-      opt.textContent = date;
-      dateSelect.appendChild(opt);
+      document.getElementById("dateFilter").addEventListener("change", () => {
+        updateCascadingFilters();
+        applyFilters();
+      });
+      
+      document.getElementById("networkFilter").addEventListener("change", applyFilters);
+      document.getElementById("timeFilter").addEventListener("change", applyFilters);
     });
 
-    if (uniqueDates.includes(selectedDate)) {
-      dateSelect.value = selectedDate;
+    function getFirstAvailableDate(allData) {
+      const uniqueDates = Array.from(new Set(allData.map(d => d.Date)))
+        .filter(Boolean)
+        .sort((a, b) => new Date(a) - new Date(b));
+      return uniqueDates[0] || null;
     }
-  }
 
-  // -----------------------------
-  // NETWORK SLICER
-  // -----------------------------
-  function updateNetworkSlicer(filteredData, selectedNetworks) {
-    const uniqueNetworks = Array.from(new Set(filteredData.map(d => d.TV_Network))).sort();
+    function updateDateSlicer(allData, selectedDate) {
+      const uniqueDates = Array.from(new Set(allData.map(d => d.Date)))
+        .filter(Boolean)
+        .sort((a, b) => new Date(a) - new Date(b));
 
-    const networkSelect = document.getElementById("networkFilter");
-    networkSelect.innerHTML = "";
+      const dateSelect = document.getElementById("dateFilter");
+      dateSelect.innerHTML = "";
 
-    uniqueNetworks.forEach(net => {
-      const opt = document.createElement("option");
-      opt.value = net;
-      opt.textContent = net;
-      networkSelect.appendChild(opt);
-    });
+      uniqueDates.forEach(date => {
+        const opt = document.createElement("option");
+        opt.value = date;
+        opt.textContent = date;
+        dateSelect.appendChild(opt);
+      });
 
-    selectedNetworks.forEach(v => {
-      if (uniqueNetworks.includes(v)) {
-        networkSelect.querySelector(`option[value="${v}"]`).selected = true;
+      if (selectedDate && uniqueDates.includes(selectedDate)) {
+        dateSelect.value = selectedDate;
+      } else if (uniqueDates.length > 0) {
+        dateSelect.value = uniqueDates[0];
       }
-    });
-  }
-
-  // -----------------------------
-  // TIME SLICER
-  // -----------------------------
-  function updateTimeSlicer(filteredData, selectedTime) {
-    const uniqueTimes = Array.from(new Set(filteredData.map(d => d.Start_Time)))
-      .sort((a, b) => new Date("1970/01/01 " + a) - new Date("1970/01/01 " + b));
-
-    const timeSelect = document.getElementById("timeFilter");
-    timeSelect.innerHTML = "";
-
-    uniqueTimes.forEach(time => {
-      const opt = document.createElement("option");
-      opt.value = time;
-      opt.textContent = time;
-      timeSelect.appendChild(opt);
-    });
-
-    if (uniqueTimes.includes(selectedTime)) {
-      timeSelect.value = selectedTime;
     }
-  }
 
-  // -----------------------------
-  // EVENT LISTENERS
-  // -----------------------------
-  document.getElementById("dateFilter").addEventListener("change", applyFilters);
-  document.getElementById("networkFilter").addEventListener("change", applyFilters);
-  document.getElementById("timeFilter").addEventListener("change", applyFilters);
+    function updateCascadingFilters() {
+      const selectedDate = document.getElementById("dateFilter").value;
+      let dateFiltered = window.gameData.filter(d => d.Date === selectedDate);
 
-  // -----------------------------
-  // INITIAL POPULATION
-  // -----------------------------
-  updateDateSlicer(window.gameData, null);
-  updateNetworkSlicer(window.gameData, []);
-  updateTimeSlicer(window.gameData, null);
+      const currentNetworks = Array.from(document.getElementById("networkFilter").selectedOptions).map(o => o.value);
+      const currentTime = document.getElementById("timeFilter").value;
 
-});
-</script>
+      updateNetworkSlicer(dateFiltered, currentNetworks);
+      updateTimeSlicer(dateFiltered, currentTime);
+    }
 
+    function updateNetworkSlicer(filteredData, selectedNetworks) {
+      const uniqueNetworks = Array.from(new Set(filteredData.map(d => d.TV_Network))).filter(Boolean).sort();
+      const networkSelect = document.getElementById("networkFilter");
+      networkSelect.innerHTML = "";
+
+      uniqueNetworks.forEach(net => {
+        const opt = document.createElement("option");
+        opt.value = net;
+        opt.textContent = net;
+        if (selectedNetworks.includes(net)) {
+          opt.selected = true;
+        }
+        networkSelect.appendChild(opt);
+      });
+    }
+
+    function updateTimeSlicer(filteredData, selectedTime) {
+      const uniqueTimes = Array.from(new Set(filteredData.map(d => d.Start_Time)))
+        .filter(Boolean)
+        .sort((a, b) => new Date("1970/01/01 " + a) - new Date("1970/01/01 " + b));
+
+      const timeSelect = document.getElementById("timeFilter");
+      timeSelect.innerHTML = '<option value="All">All Times</option>';
+
+      uniqueTimes.forEach(time => {
+        const opt = document.createElement("option");
+        opt.value = time;
+        opt.textContent = time;
+        timeSelect.appendChild(opt);
+      });
+
+      if (selectedTime && (uniqueTimes.includes(selectedTime) || selectedTime === "All")) {
+        timeSelect.value = selectedTime;
+      } else {
+        timeSelect.value = "All";
+      }
+    }
+
+    function applyFilters() {
+      const selectedDate = document.getElementById("dateFilter").value;
+      const networkSelect = document.getElementById("networkFilter");
+      const selectedNetworks = Array.from(networkSelect.selectedOptions).map(o => o.value);
+      const selectedTime = document.getElementById("timeFilter").value;
+
+      let filtered = window.gameData.filter(d => d.Date === selectedDate);
+
+      if (selectedNetworks.length > 0) {
+        filtered = filtered.filter(d => selectedNetworks.includes(d.TV_Network));
+      }
+
+      if (selectedTime && selectedTime !== "All") {
+        filtered = filtered.filter(d => d.Start_Time === selectedTime);
+      }
+
+      renderChart(filtered);
+    }
+
+    function getHomeTeamColor(matchup) {
+      if (!matchup) return '#0d6efd';
+
+      const parts = matchup.split(/\s+(?:at|vs\.?)\s+/i);
+      if (parts.length < 2) return '#0d6efd';
+
+      let homeTeamRaw = parts[parts.length - 1].trim();
+
+      // Strip rankings like "No. 16 ", "No. 1 ", "#5 "
+      let homeTeam = homeTeamRaw.replace(/^(?:No\.\s*\d+|#\d+)\s+/i, '').trim();
+
+      // Strip neutral site bracket labels like "(Mercedes-Benz Stadium)"
+      homeTeam = homeTeam.replace(/\s*\([^)]*\)/g, '').trim();
+
+      return TEAM_COLORS[homeTeam] || '#1D2A44';
+    }
+
+    function timeToMinutes(t) {
+      const [time, ampm] = t.split(' ');
+      let [h, m] = time.split(':').map(Number);
+      if (ampm === 'PM' && h !== 12) h += 12;
+      if (ampm === 'AM' && h === 12) h = 0;
+      return h * 60 + m;
+    }
+
+    function renderChart(data) {
+      if (!data || data.length === 0) {
+        Plotly.newPlot('barChart', [], {
+          title: 'No data matches the selected filters',
+          xaxis: { visible: false },
+          yaxis: { visible: false },
+          showlegend: false
+        });
+        return;
+      }
+
+      const grouped = d3.group(data, d => d.TV_Network);
+      const traces = [];
+
+      grouped.forEach((games, network) => {
+        games.sort((a, b) => timeToMinutes(a.Start_Time) - timeToMinutes(b.Start_Time));
+
+        games.forEach(game => {
+          const start = timeToMinutes(game.Start_Time);
+          const end = timeToMinutes(game.End_Time);
+          const duration = end >= start ? (end - start) : (end + 1440 - start);
+
+          const teamHexColor = getHomeTeamColor(game.Matchup);
+
+          traces.push({
+            type: 'bar',
+            orientation: 'h',
+            y: [network],
+            x: [duration],
+            base: [start],
+            name: game.Matchup,
+            marker: { 
+              color: teamHexColor,
+              line: { color: '#ffffff', width: 1.5 }
+            },
+            text: [game.Matchup],
+            textposition: 'inside',
+            insidetextanchor: 'middle',
+           hovertemplate:
+            '<b>%{text}</b><br>' +
+            'Network: ' + network + '<br>' +
+            'Kickoff: %{customdata[0]}<br>' +
+            'End: %{customdata[1]}<extra></extra>',
+            customdata: [[game.Start_Time, game.End_Time]]
+          });
+        });
+      });
+
+      const layout = {
+        title: 'Game Timeline by TV Network',
+        barmode: 'stack',
+        autosize: true,
+        xaxis: {
+          tickmode: 'array',
+          tickvals: [720, 780, 840, 900, 960, 1020, 1080, 1140, 1200, 1260, 1320, 1380, 1440],
+          ticktext: [
+            '12:00 PM', '1:00 PM', '2:00 PM', '3:00 PM', '4:00 PM', '5:00 PM', 
+            '6:00 PM', '7:00 PM', '8:00 PM', '9:00 PM', '10:00 PM', '11:00 PM', '12:00 AM'
+          ],
+          tickangle: -30
+        },
+        yaxis: {  
+          automargin: true 
+        },
+        margin: { l: 120, r: 40, t: 50, b: 80 },
+        showlegend: false
+      };
+
+      Plotly.newPlot('barChart', traces, layout, { responsive: true }).then(() => {
+        Plotly.Plots.resize('barChart');
+      });
+    }
+
+    window.addEventListener('resize', () => {
+      Plotly.Plots.resize('barChart');
+    });
+  </script>
 </body>
 </html>
