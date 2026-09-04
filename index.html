@@ -29,7 +29,7 @@
   <div class="container-fluid mt-4">
     <div class="row mb-3">
       <div class="col-md-3 filter-panel">
-        <h5 class="mb-3">Filters</h5>
+        <h5 class="mb-3">Selections</h5>
         <div class="mb-3">
           <label for="dateFilter" class="form-label">Date</label>
           <select id="dateFilter" class="form-select"></select>
@@ -56,61 +56,105 @@
 <script src="https://d3js.org/d3.v7.min.js"></script>
 <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
 <script>
+  
   d3.csv("01_weekFull.csv").then(data => {
-    // 1. Get unique dates from the dataset
-    const uniqueDates = Array.from(new Set(data.map(d => d.Date)));
+    
+  function applyFilters() {
+  const selectedDate = document.getElementById("dateFilter").value;
+  const selectedNetworks = Array.from(document.getElementById("networkFilter").selectedOptions).map(o => o.value);
+  const selectedTime = document.getElementById("timeFilter").value;
 
-    // 2. Sort dates (optional, but usually helpful)
-    uniqueDates.sort((a, b) => new Date(a) - new Date(b));
+  // 1. Start with full dataset
+  let filtered = window.gameData;
 
-    // 3. Populate the Day / Date filter
-    const dateSelect = document.getElementById("dateFilter");
-    dateSelect.innerHTML = ""; // clear any existing options
+  // 2. Apply Date filter
+  if (selectedDate) {
+    filtered = filtered.filter(d => d.Date === selectedDate);
+  }
 
-    uniqueDates.forEach(date => {
+  // 3. Apply TV Network filter
+  if (selectedNetworks.length > 0) {
+    filtered = filtered.filter(d => selectedNetworks.includes(d.TV_Network));
+  }
+
+  // 4. Apply Kickoff Time filter
+  if (selectedTime) {
+    filtered = filtered.filter(d => d.Start_Time === selectedTime);
+  }
+
+  // 5. Update slicers based on filtered dataset
+  updateDateSlicer(filtered);
+  updateNetworkSlicer(filtered);
+  updateTimeSlicer(filtered);
+
+  // (Chart update will come later)
+}
+      
+  function updateDateSlicer(filteredData) {
+  const uniqueDates = Array.from(new Set(filteredData.map(d => d.Date)))
+    .sort((a, b) => new Date(a) - new Date(b));
+
+  const dateSelect = document.getElementById("dateFilter");
+  const currentValue = dateSelect.value;
+
+  dateSelect.innerHTML = "";
+
+  uniqueDates.forEach(date => {
     const opt = document.createElement("option");
     opt.value = date;
     opt.textContent = date;
     dateSelect.appendChild(opt);
   });
-      
-    // 1. Get unique TV Networks
-    const uniqueNetworks = Array.from(new Set(data.map(d => d.TV_Network)));
 
-    // 2. Sort alphabetically
-    uniqueNetworks.sort();
+  if (uniqueDates.includes(currentValue)) {
+    dateSelect.value = currentValue;
+  }
+}
 
-    // 3. Populate the TV Network filter
-    const networkSelect = document.getElementById("networkFilter");
-    networkSelect.innerHTML = ""; // clear existing options
+function updateNetworkSlicer(filteredData) {
+  const uniqueNetworks = Array.from(new Set(filteredData.map(d => d.TV_Network))).sort();
 
-    uniqueNetworks.forEach(net => {
+  const networkSelect = document.getElementById("networkFilter");
+  const currentValues = Array.from(networkSelect.selectedOptions).map(o => o.value);
+
+  networkSelect.innerHTML = "";
+
+  uniqueNetworks.forEach(net => {
     const opt = document.createElement("option");
     opt.value = net;
     opt.textContent = net;
     networkSelect.appendChild(opt);
-
   });
 
-  // 1. Get unique kickoff times
-  const uniqueTimes = Array.from(new Set(data.map(d => d.Start_Time)));
-
-  // 2. Sort times chronologically
-  uniqueTimes.sort((a, b) => {
-  // Convert "6:00 PM" → Date object for sorting
-  return new Date("1970/01/01 " + a) - new Date("1970/01/01 " + b);
+  currentValues.forEach(v => {
+    if (uniqueNetworks.includes(v)) {
+      networkSelect.querySelector(`option[value="${v}"]`).selected = true;
+    }
   });
+}
 
-  // 3. Populate the Kickoff Time filter
+function updateTimeSlicer(filteredData) {
+  const uniqueTimes = Array.from(new Set(filteredData.map(d => d.Start_Time)))
+                           .sort((a, b) => new Date("1970/01/01 " + a) - new Date("1970/01/01 " + b));
+
   const timeSelect = document.getElementById("timeFilter");
-  timeSelect.innerHTML = ""; // clear existing options
+  const currentValue = timeSelect.value;
+
+  timeSelect.innerHTML = "";
 
   uniqueTimes.forEach(time => {
-  const opt = document.createElement("option");
-  opt.value = time;
-  opt.textContent = time;
-  timeSelect.appendChild(opt);
+    const opt = document.createElement("option");
+    opt.value = time;
+    opt.textContent = time;
+    timeSelect.appendChild(opt);
   });
+
+  if (uniqueTimes.includes(currentValue)) {
+    timeSelect.value = currentValue;
+  }
+}
+
+
 
     
   // Keep data available globally for later steps
