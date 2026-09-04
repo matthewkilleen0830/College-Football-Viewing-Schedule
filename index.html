@@ -55,112 +55,130 @@
 
 <script src="https://d3js.org/d3.v7.min.js"></script>
 <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+
 <script>
-  
-  d3.csv("01_weekFull.csv").then(data => {
-    
-  function applyFilters() {
-  const selectedDate = document.getElementById("dateFilter").value;
-  const selectedNetworks = Array.from(document.getElementById("networkFilter").selectedOptions).map(o => o.value);
-  const selectedTime = document.getElementById("timeFilter").value;
+d3.csv("01_weekFull.csv").then(data => {
 
-  // 1. Start with full dataset
-  let filtered = window.gameData;
-
-  // 2. Apply Date filter
-  if (selectedDate) {
-    filtered = filtered.filter(d => d.Date === selectedDate);
-  }
-
-  // 3. Apply TV Network filter
-  if (selectedNetworks.length > 0) {
-    filtered = filtered.filter(d => selectedNetworks.includes(d.TV_Network));
-  }
-
-  // 4. Apply Kickoff Time filter
-  if (selectedTime) {
-    filtered = filtered.filter(d => d.Start_Time === selectedTime);
-  }
-
-  // 5. Update slicers based on filtered dataset
-  updateDateSlicer(filtered);
-  updateNetworkSlicer(filtered);
-  updateTimeSlicer(filtered);
-
-  // (Chart update will come later)
-}
-      
-  function updateDateSlicer(filteredData) {
-  const uniqueDates = Array.from(new Set(filteredData.map(d => d.Date)))
-    .sort((a, b) => new Date(a) - new Date(b));
-
-  const dateSelect = document.getElementById("dateFilter");
-  const currentValue = dateSelect.value;
-
-  dateSelect.innerHTML = "";
-
-  uniqueDates.forEach(date => {
-    const opt = document.createElement("option");
-    opt.value = date;
-    opt.textContent = date;
-    dateSelect.appendChild(opt);
-  });
-
-  if (uniqueDates.includes(currentValue)) {
-    dateSelect.value = currentValue;
-  }
-}
-
-function updateNetworkSlicer(filteredData) {
-  const uniqueNetworks = Array.from(new Set(filteredData.map(d => d.TV_Network))).sort();
-
-  const networkSelect = document.getElementById("networkFilter");
-  const currentValues = Array.from(networkSelect.selectedOptions).map(o => o.value);
-
-  networkSelect.innerHTML = "";
-
-  uniqueNetworks.forEach(net => {
-    const opt = document.createElement("option");
-    opt.value = net;
-    opt.textContent = net;
-    networkSelect.appendChild(opt);
-  });
-
-  currentValues.forEach(v => {
-    if (uniqueNetworks.includes(v)) {
-      networkSelect.querySelector(`option[value="${v}"]`).selected = true;
-    }
-  });
-}
-
-function updateTimeSlicer(filteredData) {
-  const uniqueTimes = Array.from(new Set(filteredData.map(d => d.Start_Time)))
-                           .sort((a, b) => new Date("1970/01/01 " + a) - new Date("1970/01/01 " + b));
-
-  const timeSelect = document.getElementById("timeFilter");
-  const currentValue = timeSelect.value;
-
-  timeSelect.innerHTML = "";
-
-  uniqueTimes.forEach(time => {
-    const opt = document.createElement("option");
-    opt.value = time;
-    opt.textContent = time;
-    timeSelect.appendChild(opt);
-  });
-
-  if (uniqueTimes.includes(currentValue)) {
-    timeSelect.value = currentValue;
-  }
-}
-
-document.getElementById("dateFilter").addEventListener("change", applyFilters);
-document.getElementById("networkFilter").addEventListener("change", applyFilters);
-document.getElementById("timeFilter").addEventListener("change", applyFilters);
-    
-  // Keep data available globally for later steps
+  // Store full dataset globally
   window.gameData = data;
-  });
+
+  // -----------------------------
+  // FILTER APPLICATION FUNCTION
+  // -----------------------------
+  function applyFilters() {
+    const selectedDate = document.getElementById("dateFilter").value;
+    const selectedNetworks = Array.from(document.getElementById("networkFilter").selectedOptions).map(o => o.value);
+    const selectedTime = document.getElementById("timeFilter").value;
+
+    let filtered = window.gameData;
+
+    if (selectedDate) {
+      filtered = filtered.filter(d => d.Date === selectedDate);
+    }
+
+    if (selectedNetworks.length > 0) {
+      filtered = filtered.filter(d => selectedNetworks.includes(d.TV_Network));
+    }
+
+    if (selectedTime) {
+      filtered = filtered.filter(d => d.Start_Time === selectedTime);
+    }
+
+    updateDateSlicer(filtered);
+    updateNetworkSlicer(filtered);
+    updateTimeSlicer(filtered);
+
+    // Chart update will come later
+  }
+
+  // -----------------------------
+  // DATE SLICER UPDATE
+  // -----------------------------
+  function updateDateSlicer(filteredData) {
+    const uniqueDates = Array.from(new Set(filteredData.map(d => d.Date)))
+      .sort((a, b) => new Date(a) - new Date(b));
+
+    const dateSelect = document.getElementById("dateFilter");
+    const currentValue = dateSelect.value;
+
+    dateSelect.innerHTML = "";
+
+    uniqueDates.forEach(date => {
+      const opt = document.createElement("option");
+      opt.value = date;
+      opt.textContent = date;
+      dateSelect.appendChild(opt);
+    });
+
+    if (uniqueDates.includes(currentValue)) {
+      dateSelect.value = currentValue;
+    }
+  }
+
+  // -----------------------------
+  // NETWORK SLICER UPDATE
+  // -----------------------------
+  function updateNetworkSlicer(filteredData) {
+    const uniqueNetworks = Array.from(new Set(filteredData.map(d => d.TV_Network))).sort();
+
+    const networkSelect = document.getElementById("networkFilter");
+    const currentValues = Array.from(networkSelect.selectedOptions).map(o => o.value);
+
+    networkSelect.innerHTML = "";
+
+    uniqueNetworks.forEach(net => {
+      const opt = document.createElement("option");
+      opt.value = net;
+      opt.textContent = net;
+      networkSelect.appendChild(opt);
+    });
+
+    currentValues.forEach(v => {
+      if (uniqueNetworks.includes(v)) {
+        networkSelect.querySelector(`option[value="${v}"]`).selected = true;
+      }
+    });
+  }
+
+  // -----------------------------
+  // TIME SLICER UPDATE
+  // -----------------------------
+  function updateTimeSlicer(filteredData) {
+    const uniqueTimes = Array.from(new Set(filteredData.map(d => d.Start_Time)))
+      .sort((a, b) => new Date("1970/01/01 " + a) - new Date("1970/01/01 " + b));
+
+    const timeSelect = document.getElementById("timeFilter");
+    const currentValue = timeSelect.value;
+
+    timeSelect.innerHTML = "";
+
+    uniqueTimes.forEach(time => {
+      const opt = document.createElement("option");
+      opt.value = time;
+      opt.textContent = time;
+      timeSelect.appendChild(opt);
+    });
+
+    if (uniqueTimes.includes(currentValue)) {
+      timeSelect.value = currentValue;
+    }
+  }
+
+  // -----------------------------
+  // EVENT LISTENERS
+  // -----------------------------
+  document.getElementById("dateFilter").addEventListener("change", applyFilters);
+  document.getElementById("networkFilter").addEventListener("change", applyFilters);
+  document.getElementById("timeFilter").addEventListener("change", applyFilters);
+
+  // -----------------------------
+  // INITIAL POPULATION OF SLICERS
+  // -----------------------------
+  updateDateSlicer(window.gameData);
+  updateNetworkSlicer(window.gameData);
+  updateTimeSlicer(window.gameData);
+
+});
 </script>
 
 </body>
