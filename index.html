@@ -59,17 +59,19 @@
 <script>
 d3.csv("01_weekFull.csv").then(data => {
 
-  // Store full dataset globally
   window.gameData = data;
 
   // -----------------------------
-  // FILTER APPLICATION FUNCTION
+  // APPLY FILTERS
   // -----------------------------
   function applyFilters() {
+
+    // 1. Capture current selections BEFORE filtering
     const selectedDate = document.getElementById("dateFilter").value;
     const selectedNetworks = Array.from(document.getElementById("networkFilter").selectedOptions).map(o => o.value);
     const selectedTime = document.getElementById("timeFilter").value;
 
+    // 2. Filter dataset
     let filtered = window.gameData;
 
     if (selectedDate) {
@@ -84,23 +86,22 @@ d3.csv("01_weekFull.csv").then(data => {
       filtered = filtered.filter(d => d.Start_Time === selectedTime);
     }
 
-    updateDateSlicer(filtered);
-    updateNetworkSlicer(filtered);
-    updateTimeSlicer(filtered);
+    // 3. Update slicers based on filtered dataset
+    updateDateSlicer(filtered, selectedDate);
+    updateNetworkSlicer(filtered, selectedNetworks);
+    updateTimeSlicer(filtered, selectedTime);
 
     // Chart update will come later
   }
 
   // -----------------------------
-  // DATE SLICER UPDATE
+  // DATE SLICER
   // -----------------------------
-  function updateDateSlicer(filteredData) {
+  function updateDateSlicer(filteredData, selectedDate) {
     const uniqueDates = Array.from(new Set(filteredData.map(d => d.Date)))
       .sort((a, b) => new Date(a) - new Date(b));
 
     const dateSelect = document.getElementById("dateFilter");
-    const currentValue = dateSelect.value;
-
     dateSelect.innerHTML = "";
 
     uniqueDates.forEach(date => {
@@ -110,20 +111,18 @@ d3.csv("01_weekFull.csv").then(data => {
       dateSelect.appendChild(opt);
     });
 
-    if (uniqueDates.includes(currentValue)) {
-      dateSelect.value = currentValue;
+    if (uniqueDates.includes(selectedDate)) {
+      dateSelect.value = selectedDate;
     }
   }
 
   // -----------------------------
-  // NETWORK SLICER UPDATE
+  // NETWORK SLICER
   // -----------------------------
-  function updateNetworkSlicer(filteredData) {
+  function updateNetworkSlicer(filteredData, selectedNetworks) {
     const uniqueNetworks = Array.from(new Set(filteredData.map(d => d.TV_Network))).sort();
 
     const networkSelect = document.getElementById("networkFilter");
-    const currentValues = Array.from(networkSelect.selectedOptions).map(o => o.value);
-
     networkSelect.innerHTML = "";
 
     uniqueNetworks.forEach(net => {
@@ -133,7 +132,7 @@ d3.csv("01_weekFull.csv").then(data => {
       networkSelect.appendChild(opt);
     });
 
-    currentValues.forEach(v => {
+    selectedNetworks.forEach(v => {
       if (uniqueNetworks.includes(v)) {
         networkSelect.querySelector(`option[value="${v}"]`).selected = true;
       }
@@ -141,15 +140,13 @@ d3.csv("01_weekFull.csv").then(data => {
   }
 
   // -----------------------------
-  // TIME SLICER UPDATE
+  // TIME SLICER
   // -----------------------------
-  function updateTimeSlicer(filteredData) {
+  function updateTimeSlicer(filteredData, selectedTime) {
     const uniqueTimes = Array.from(new Set(filteredData.map(d => d.Start_Time)))
       .sort((a, b) => new Date("1970/01/01 " + a) - new Date("1970/01/01 " + b));
 
     const timeSelect = document.getElementById("timeFilter");
-    const currentValue = timeSelect.value;
-
     timeSelect.innerHTML = "";
 
     uniqueTimes.forEach(time => {
@@ -159,8 +156,8 @@ d3.csv("01_weekFull.csv").then(data => {
       timeSelect.appendChild(opt);
     });
 
-    if (uniqueTimes.includes(currentValue)) {
-      timeSelect.value = currentValue;
+    if (uniqueTimes.includes(selectedTime)) {
+      timeSelect.value = selectedTime;
     }
   }
 
@@ -172,11 +169,11 @@ d3.csv("01_weekFull.csv").then(data => {
   document.getElementById("timeFilter").addEventListener("change", applyFilters);
 
   // -----------------------------
-  // INITIAL POPULATION OF SLICERS
+  // INITIAL POPULATION
   // -----------------------------
-  updateDateSlicer(window.gameData);
-  updateNetworkSlicer(window.gameData);
-  updateTimeSlicer(window.gameData);
+  updateDateSlicer(window.gameData, null);
+  updateNetworkSlicer(window.gameData, []);
+  updateTimeSlicer(window.gameData, null);
 
 });
 </script>
