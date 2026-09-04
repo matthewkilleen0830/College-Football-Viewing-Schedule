@@ -53,14 +53,37 @@
     </div>
   </div>
 
-  <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
-  <script src="https://d3js.org/d3.v7.min.js"></script>
-  <script>
-    // Placeholder for loading CSV and rendering chart
-    d3.csv("01_weekFull.csv").then(data => {
-      console.log(data);
-      // TODO: populate filters and render timeline-style bars
+<script src="https://d3js.org/d3.v7.min.js"></script>
+<script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+<script>
+  d3.csv("01_weekFull.csv").then(data => {
+    // 1. Get unique dates from the dataset
+    const uniqueDates = Array.from(new Set(data.map(d => d.Date)));
+
+    // 2. Sort dates (optional, but usually helpful)
+    uniqueDates.sort((a, b) => new Date(a) - new Date(b));
+
+    // 3. Populate the Day / Date filter
+    const dateSelect = document.getElementById("dateFilter");
+    dateSelect.innerHTML = ""; // clear any existing options
+
+    // Optional: add an "All Dates" option
+    const allOption = document.createElement("option");
+    allOption.value = "";
+    allOption.textContent = "All Dates";
+    dateSelect.appendChild(allOption);
+
+    uniqueDates.forEach(date => {
+      const opt = document.createElement("option");
+      opt.value = date;
+      opt.textContent = date;
+      dateSelect.appendChild(opt);
     });
-  </script>
+
+    // Keep data available globally for later steps
+    window.gameData = data;
+  });
+</script>
+
 </body>
 </html>
