@@ -31,11 +31,11 @@
       <div class="col-md-3 filter-panel">
         <h5 class="mb-3">Filters</h5>
         <div class="mb-3">
-          <label for="dateFilter" class="form-label">Day / Date</label>
+          <label for="dateFilter" class="form-label">Date</label>
           <select id="dateFilter" class="form-select"></select>
         </div>
         <div class="mb-3">
-          <label for="networkFilter" class="form-label">TV Network</label>
+          <label for="networkFilter" class="form-label">TV Provider</label>
           <select id="networkFilter" class="form-select" multiple></select>
         </div>
         <div class="mb-3">
@@ -72,7 +72,8 @@
     opt.value = date;
     opt.textContent = date;
     dateSelect.appendChild(opt);
-
+  });
+      
     // 1. Get unique TV Networks
     const uniqueNetworks = Array.from(new Set(data.map(d => d.TV_Network)));
 
