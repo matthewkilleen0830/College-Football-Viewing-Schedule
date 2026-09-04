@@ -67,19 +67,13 @@
     const dateSelect = document.getElementById("dateFilter");
     dateSelect.innerHTML = ""; // clear any existing options
 
-    // Optional: add an "All Dates" option
-    const allOption = document.createElement("option");
-    allOption.value = "";
-    allOption.textContent = "All Dates";
-    dateSelect.appendChild(allOption);
-
     uniqueDates.forEach(date => {
-      const opt = document.createElement("option");
-      opt.value = date;
-      opt.textContent = date;
-      dateSelect.appendChild(opt);
-    });
-
+    const opt = document.createElement("option");
+    opt.value = date;
+    opt.textContent = date;
+    dateSelect.appendChild(opt);
+  });
+    
     // Keep data available globally for later steps
     window.gameData = data;
   });
