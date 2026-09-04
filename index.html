@@ -46,7 +46,7 @@
 
       <div class="col-md-9">
         <div class="chart-container">
-          <h5 class="mb-3">Game Duration by TV Network and Matchup</h5>
+          <h5 class="mb-3">College Football Guide</h5>
           <div id="barChart"></div>
         </div>
       </div>
@@ -72,6 +72,23 @@
     opt.value = date;
     opt.textContent = date;
     dateSelect.appendChild(opt);
+
+    // 1. Get unique TV Networks
+    const uniqueNetworks = Array.from(new Set(data.map(d => d.TV_Network)));
+
+    // 2. Sort alphabetically
+    uniqueNetworks.sort();
+
+    // 3. Populate the TV Network filter
+    const networkSelect = document.getElementById("networkFilter");
+    networkSelect.innerHTML = ""; // clear existing options
+
+    uniqueNetworks.forEach(net => {
+    const opt = document.createElement("option");
+    opt.value = net;
+    opt.textContent = net;
+    networkSelect.appendChild(opt);
+
   });
     
     // Keep data available globally for later steps
