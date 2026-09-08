@@ -10,6 +10,24 @@
 
   <!-- Custom Stylesheet -->
   <link rel="stylesheet" href="styles.css">
+
+  <style>
+    /* Custom CSS to make the checkbox panel scrollable and match Bootstrap styling */
+    .checkbox-panel {
+      max-height: 200px;
+      overflow-y: auto;
+      background-color: #fff;
+      border: 1px solid #dee2e6;
+      border-radius: 0.375rem;
+      padding: 0.5rem 0.75rem;
+    }
+    .checkbox-panel .form-check {
+      margin-bottom: 0.25rem;
+    }
+    .checkbox-panel .form-check:last-child {
+      margin-bottom: 0;
+    }
+  </style>
 </head>
 <body>
 
@@ -18,35 +36,37 @@
     <div class="row g-3 flex-grow-1">
 
       <!-- Sidebar Controls Section -->
-<div class="col-md-2 align-self-start">
-  <div class="filter-panel">
-    <h5 class="mb-3">Week 2 Selections</h5>
+      <div class="col-md-2 align-self-start">
+        <div class="filter-panel">
+          <h5 class="mb-3">Week 2 Selections</h5>
 
-    <!-- Single-Select Date Slicer -->
-    <div class="mb-3">
-      <label for="dateFilter" class="form-label">Day/Date</label>
-      <select id="dateFilter" class="form-select"></select>
-    </div>
+          <!-- Single-Select Date Slicer -->
+          <div class="mb-3">
+            <label for="dateFilter" class="form-label">Day/Date</label>
+            <select id="dateFilter" class="form-select"></select>
+          </div>
 
-    <!-- Multi-Select Network Slicer -->
-    <div class="mb-3">
-      <label for="networkFilter" class="form-label">Media Provider</label>
-      <select id="networkFilter" class="form-select" multiple size="8"></select>
-    </div>
+          <!-- Multi-Select Checkbox Network Slicer -->
+          <div class="mb-3">
+            <label class="form-label">Media Provider</label>
+            <div id="networkFilter" class="checkbox-panel">
+              <!-- Checkboxes dynamically rendered via JavaScript -->
+            </div>
+          </div>
 
-    <!-- Single-Select Kickoff Time Filter -->
-    <div class="mb-3">
-      <label for="timeFilter" class="form-label">Kickoff Time</label>
-      <select id="timeFilter" class="form-select"></select>
-    </div>
+          <!-- Single-Select Kickoff Time Filter -->
+          <div class="mb-3">
+            <label for="timeFilter" class="form-label">Kickoff Time</label>
+            <select id="timeFilter" class="form-select"></select>
+          </div>
 
-    <!-- Single-Select Ranked Matchup Filter -->
-    <div class="mb-3">
-      <label for="rankedFilter" class="form-label">Ranked Teams</label>
-      <select id="rankedFilter" class="form-select"></select>
-    </div>
-  </div>
-</div>
+          <!-- Single-Select Ranked Matchup Filter -->
+          <div class="mb-3">
+            <label for="rankedFilter" class="form-label">Ranked Teams</label>
+            <select id="rankedFilter" class="form-select"></select>
+          </div>
+        </div>
+      </div>
 
       <!-- Main Dashboard Visualization Display -->
       <div class="col-md-10 d-flex flex-column gap-3">
@@ -380,7 +400,6 @@
         applyFilters();
       });
       
-      document.getElementById("networkFilter").addEventListener("change", applyFilters);
       document.getElementById("timeFilter").addEventListener("change", applyFilters);
       document.getElementById("rankedFilter").addEventListener("change", applyFilters);
     });
@@ -419,36 +438,78 @@
     }
 
     function updateCascadingFilters() {
-      const selectedDate = document.getElementById("dateFilter").value;
-      const dateFiltered = window.gameData.filter(d => d.Date === selectedDate);
+  const selectedDate = document.getElementById("dateFilter").value;
+  const dateFiltered = window.gameData.filter(d => d.Date === selectedDate);
 
-      const currentNetworks = Array.from(
-        document.getElementById("networkFilter").selectedOptions
-      ).map(o => o.value);
-      const currentTime = document.getElementById("timeFilter").value;
-      const currentRanked = document.getElementById("rankedFilter").value;
+  // Check if "All Providers" master toggle is currently checked
+  const allCheckbox = document.getElementById("net_all");
+  const wasAllChecked = allCheckbox ? allCheckbox.checked : true;
 
-      updateNetworkSlicer(dateFiltered, currentNetworks);
-      updateTimeSlicer(dateFiltered, currentTime);
-      updateRankedSlicer(dateFiltered, currentRanked);
-    }
+  let checkedBoxes = [];
+  if (!wasAllChecked) {
+    // Only capture specific selections if "All Providers" was NOT selected
+    checkedBoxes = Array.from(
+      document.querySelectorAll("#networkFilter .network-checkbox:checked")
+    ).map(cb => cb.value);
+  }
+
+  const currentTime = document.getElementById("timeFilter").value;
+  const currentRanked = document.getElementById("rankedFilter").value;
+
+  // Passing [] when "All Providers" was checked forces all new date's networks to stay checked
+  updateNetworkSlicer(dateFiltered, checkedBoxes);
+  updateTimeSlicer(dateFiltered, currentTime);
+  updateRankedSlicer(dateFiltered, currentRanked);
+}
 
     function updateNetworkSlicer(filteredData, selectedNetworks) {
       const uniqueNetworks = Array.from(new Set(filteredData.map(d => d.TV_Network)))
         .filter(Boolean)
         .sort();
         
-      const networkSelect = document.getElementById("networkFilter");
-      networkSelect.innerHTML = "";
+      const container = document.getElementById("networkFilter");
+      container.innerHTML = "";
 
-      uniqueNetworks.forEach(net => {
-        const opt = document.createElement("option");
-        opt.value = net;
-        opt.textContent = net;
-        if (selectedNetworks.includes(net)) {
-          opt.selected = true;
-        }
-        networkSelect.appendChild(opt);
+      // Determine if "All Providers" should start checked (default on initial render or if all are checked)
+      const isAllChecked = selectedNetworks.length === 0 || uniqueNetworks.every(net => selectedNetworks.includes(net));
+
+      // 1. Create "All Providers" Master Toggle
+      const allDiv = document.createElement("div");
+      allDiv.className = "form-check border-bottom pb-1 mb-2";
+      allDiv.innerHTML = `
+        <input class="form-check-input" type="checkbox" id="net_all" ${isAllChecked ? 'checked' : ''}>
+        <label class="form-check-label fw-bold" for="net_all">All Providers</label>
+      `;
+      container.appendChild(allDiv);
+
+      // 2. Create individual network checkboxes
+      uniqueNetworks.forEach((net, idx) => {
+        const isChecked = isAllChecked || selectedNetworks.includes(net);
+        const div = document.createElement("div");
+        div.className = "form-check";
+        div.innerHTML = `
+          <input class="form-check-input network-checkbox" type="checkbox" value="${net}" id="net_${idx}" ${isChecked ? 'checked' : ''}>
+          <label class="form-check-label" for="net_${idx}">${net}</label>
+        `;
+        container.appendChild(div);
+      });
+
+      // 3. Setup event handler for "All Providers" master checkbox
+      const allCheckbox = document.getElementById("net_all");
+      const itemCheckboxes = container.querySelectorAll(".network-checkbox");
+
+      allCheckbox.addEventListener("change", (e) => {
+        itemCheckboxes.forEach(cb => cb.checked = e.target.checked);
+        applyFilters();
+      });
+
+      // 4. Setup event handlers for individual network checkboxes
+      itemCheckboxes.forEach(cb => {
+        cb.addEventListener("change", () => {
+          const allChecked = Array.from(itemCheckboxes).every(item => item.checked);
+          allCheckbox.checked = allChecked;
+          applyFilters();
+        });
       });
     }
 
@@ -490,16 +551,19 @@
 
     function applyFilters() {
       const selectedDate = document.getElementById("dateFilter").value;
-      const networkSelect = document.getElementById("networkFilter");
-      const selectedNetworks = Array.from(networkSelect.selectedOptions).map(o => o.value);
+      
+      // Get all checked network values
+      const checkedBoxes = Array.from(
+        document.querySelectorAll("#networkFilter .network-checkbox:checked")
+      ).map(cb => cb.value);
+      
       const selectedTime = document.getElementById("timeFilter").value;
       const selectedRanked = document.getElementById("rankedFilter").value;
 
       let filtered = window.gameData.filter(d => d.Date === selectedDate);
 
-      if (selectedNetworks.length > 0) {
-        filtered = filtered.filter(d => selectedNetworks.includes(d.TV_Network));
-      }
+      // Filter by checked networks
+      filtered = filtered.filter(d => checkedBoxes.includes(d.TV_Network));
 
       if (selectedTime && selectedTime !== "All") {
         filtered = filtered.filter(d => d.Start_Time === selectedTime);
@@ -649,7 +713,7 @@
         });
       });
 
-      const ROW_HEIGHT = 34;
+      const ROW_HEIGHT = 30;
       const PADDING = 90;
       const calculatedHeight = Math.max((yTicks.length * ROW_HEIGHT) + PADDING, 140);
 
@@ -660,7 +724,7 @@
         bargap: 0.15,
         autosize: true,
         height: calculatedHeight,
-        margin: { l: 95, r: 15, t: 50, b: 20 },
+        margin: { l: 91, r: 15, t: 50, b: 20 },
         xaxis: {
           side: 'top',
           type: 'linear',
