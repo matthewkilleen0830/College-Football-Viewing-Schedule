@@ -1,3 +1,4 @@
+/* Global Reset and Layout */
 html, body {
   height: 100%;
   margin: 0;
@@ -5,39 +6,45 @@ html, body {
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
-/* Ensure full height layout */
+/* Ensure the parent container allows native document scrolling */
 .main-wrapper {
-  min-height: 98vh;
-  display: flex;
-  flex-direction: column;
+  min-height: 100vh;
 }
 
+/* Sticky Sidebar Control Panel */
 .filter-panel {
   background-color: #fff;
   border-radius: 8px;
   padding: 1.25rem;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-  height: 100%;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  
+  /* Enables floating on scroll */
+  position: sticky;
+  top: 1rem; /* Gap between the top of the viewport and the card while scrolling */
+  z-index: 100;
+  max-height: calc(100vh - 2rem); /* Ensures panel fits within screen height */
+  overflow-y: auto; /* Adds inner scrollbar if screen height is too small */
 }
 
-/* Main Gantt Chart Wrapper - Container scrolls if chart exceeds screen */
+/* Individual Chart Card Containers */
 .chart-container {
   background-color: #fff;
   border-radius: 8px;
-  padding: 1.25rem;
+  padding: 1rem 1.25rem;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
-  min-height: 96vh;
-  max-height: 96vh;
+  overflow-x: hidden;
   overflow-y: auto;
   display: flex;
   flex-direction: column;
-}
-
-/* Plotly Chart Mount Target */
-#barChart {
   width: 100%;
 }
 
-#chart-container text {
-  font-family: 'Segoe UI', Tahoma;
+/* Plotly Mount Target Containers */
+.plotly-chart {
+  width: 100%;
+  min-height: 100px;
+}
+
+.chart-container text {
+  font-family: 'Segoe UI', Tahoma, sans-serif;
 }
