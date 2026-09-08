@@ -20,21 +20,22 @@ html, body {
   height: 100%;
 }
 
-/* Make the chart container stretch to fill vertical space */
+/* Main Gantt Chart Wrapper - Container scrolls if chart exceeds screen */
 .chart-container {
   background-color: #fff;
   border-radius: 8px;
   padding: 1.25rem;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-  height: 100%;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  min-height: 96vh;
+  max-height: 96vh;
+  overflow-y: auto;
   display: flex;
   flex-direction: column;
 }
 
+/* Plotly Chart Mount Target */
 #barChart {
   width: 100%;
-  flex: 1; /* Automatically takes all remaining height */
-  min-height: 750px; /* Forces enough bar height when many networks exist */
 }
 
 #chart-container text {
