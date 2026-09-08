@@ -1,4 +1,4 @@
-/* Global Reset and Layout */
+/* Global Reset and Base Layout */
 html, body {
   height: 100%;
   margin: 0;
@@ -17,16 +17,32 @@ html, body {
   border-radius: 8px;
   padding: 1.25rem;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
-  
-  /* Enables floating on scroll */
   position: sticky;
-  top: 1rem; /* Gap between the top of the viewport and the card while scrolling */
+  top: 1rem;
   z-index: 100;
-  max-height: calc(100vh - 2rem); /* Ensures panel fits within screen height */
-  overflow-y: auto; /* Adds inner scrollbar if screen height is too small */
+  max-height: calc(100vh - 2rem);
+  overflow-y: auto;
 }
 
-/* Individual Chart Card Containers */
+/* Scrollable Checkbox Panel Styling */
+.checkbox-panel {
+  max-height: 300px;
+  overflow-y: auto;
+  background-color: #fff;
+  border: 1px solid #dee2e6;
+  border-radius: 0.375rem;
+  padding: 0.5rem 0.75rem;
+}
+
+.checkbox-panel .form-check {
+  margin-bottom: 0.25rem;
+}
+
+.checkbox-panel .form-check:last-child {
+  margin-bottom: 0;
+}
+
+/* Chart Card Containers */
 .chart-container {
   background-color: #fff;
   border-radius: 8px;
@@ -39,9 +55,9 @@ html, body {
   width: 100%;
 }
 
-/* Plotly Mount Target Containers */
+/* Plotly Canvas Container Setup */
 .plotly-chart {
-  width: 100% !important;
+  width: 100%;
   min-height: 100px;
 }
 
