@@ -4,35 +4,48 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>College Football Broadcast Dashboard</title>
+
+  <!-- External Stylesheets -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+  <!-- Internal Custom Styling -->
   <style>
+    /* Global Reset and Layout */
     html, body {
       height: 100%;
       margin: 0;
       background-color: #f8f9fa;
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     }
+
+    /* Outer Dashboard Layout Wrapper */
     .main-wrapper {
       min-height: 98vh;
       display: flex;
       flex-direction: column;
     }
+
+    /* Control Panel Card Styling */
     .filter-panel {
       background-color: #fff;
       border-radius: 8px;
       padding: 1.25rem;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
       height: 100%;
     }
+
+    /* Main Gantt Chart Wrapper */
     .chart-container {
       background-color: #fff;
       border-radius: 8px;
       padding: 1.25rem;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
       height: 96vh;
       display: flex;
       flex-direction: column;
     }
+
+    /* Plotly Chart Mount Target */
     #barChart {
       width: 100%;
       flex-grow: 1;
@@ -41,138 +54,202 @@
   </style>
 </head>
 <body>
+
+  <!-- Application Layout Root -->
   <div class="container-fluid px-4 py-3 main-wrapper">
     <div class="row g-3 flex-grow-1">
+
+      <!-- Sidebar Controls Section -->
       <div class="col-md-2">
         <div class="filter-panel">
           <h5 class="mb-3">Selections</h5>
 
+          <!-- Single-Select Date Slicer -->
           <div class="mb-3">
             <label for="dateFilter" class="form-label">Date</label>
             <select id="dateFilter" class="form-select"></select>
           </div>
 
+          <!-- Multi-Select Network Slicer -->
           <div class="mb-3">
             <label for="networkFilter" class="form-label">TV Provider</label>
             <select id="networkFilter" class="form-select" multiple size="8"></select>
           </div>
 
+          <!-- Single-Select Kickoff Time Filter -->
           <div class="mb-3">
-            <label for="timeFilter" class="form-label">Kickoff Time (Eastern)</label>
+            <label for="timeFilter" class="form-label">Kickoff Time</label>
             <select id="timeFilter" class="form-select"></select>
+          </div>
+
+          <!-- Single-Select Ranked Matchup Filter -->
+          <div class="mb-3">
+            <label for="rankedFilter" class="form-label">Ranked Matchup</label>
+            <select id="rankedFilter" class="form-select"></select>
           </div>
         </div>
       </div>
 
+      <!-- Main Dashboard Visualization Display -->
       <div class="col-md-10">
         <div class="chart-container">
-          <h5 class="mb-2">College Football Guide</h5>
+          <h5 class="mb-2">College Football Guide (all times Central Time)</h5>
           <div id="barChart"></div>
         </div>
       </div>
+
     </div>
   </div>
 
+  <!-- Third-Party Dependencies -->
   <script src="https://d3js.org/d3.v7.min.js"></script>
   <script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
 
+  <!-- Dashboard Controller Script -->
   <script>
+    // ==========================================
+    // 1. TEAM COLOR DICTIONARY (Primary Home Jersey Color Hex)
+    // ==========================================
     const TEAM_COLORS = {
       // Big Ten
-      "Michigan": "#00274C",
-      "Ohio State": "#BB0000",
-      "Penn State": "#041E42",
-      "Oregon": "#007030",
-      "USC": "#990000",
-      "Washington": "#4B2E83",
-      "Iowa": "#000000",
-      "Wisconsin": "#C5050C",
-      "Nebraska": "#E31837",
-      "Minnesota": "#7A0019",
-      "Rutgers": "#CC0033",
       "Illinois": "#E84A27",
       "Indiana": "#990000",
-      "Michigan State": "#18453B",
-      "Purdue": "#000000",
-      "Northwestern": "#4E2A84",
-      "UCLA": "#2D68C4",
+      "Iowa": "#000000",
       "Maryland": "#E21A23",
+      "Michigan": "#00274C",
+      "Michigan State": "#18453B",
+      "Minnesota": "#7A0019",
+      "Nebraska": "#E31837",
+      "Northwestern": "#4E2A84",     
+      "Ohio State": "#BB0000",
+      "Oregon": "#007030",
+      "Penn State": "#041E42",
+      "Purdue": "#000000",
+      "Rutgers": "#CC0033",
+      "UCLA": "#2D68C4",      
+      "USC": "#990000",
+      "Washington": "#4B2E83",      
+      "Wisconsin": "#C5050C",      
 
       // SEC
       "Alabama": "#9E1B32",
-      "Georgia": "#BA0C2F",
-      "LSU": "#461D7C",
-      "Texas": "#BF5700",
-      "Oklahoma": "#841617",
-      "Tennessee": "#FF8200",
-      "Texas A&M": "#500000",
-      "Missouri": "#000000",
-      "Ole Miss": "#182B49",
+      "Arkansas": "#9D2235",
       "Auburn": "#0C2340",
       "Florida": "#0021A5",
-      "Arkansas": "#9D2235",
-      "South Carolina": "#73000A",
+      "Georgia": "#BA0C2F",
       "Kentucky": "#0033A0",
+      "LSU": "#461D7C",
       "Mississippi State": "#660000",
+      "Missouri": "#000000",
+      "Oklahoma": "#841617",
+      "Ole Miss": "#182B49",
+      "South Carolina": "#73000A",
+      "Tennessee": "#FF8200",
+      "Texas A&M": "#500000",
+      "Texas": "#BF5700",
       "Vanderbilt": "#866D4B",
 
       // ACC
+      "Boston College": "98002E",
+      "Cal": "002676",
       "Clemson": "#F56600",
+      "Duke": "#003087",
       "Florida State": "#782F40",
+      "Georgia Tech": "#B3A369",
+      "Louisville": "#AD0000",
       "Miami": "#F47321",
       "North Carolina": "#7BAFD4",
       "NC State": "#CC0000",
-      "Virginia Tech": "#630031",
-      "Duke": "#003087",
-      "Wake Forest": "#9E7E38",
-      "Syracuse": "#D44500",
-      "Pittsburgh": "#003594",
       "Pitt": "#003594",
-      "Louisville": "#AD0000",
-      "Georgia Tech": "#B3A369",
+      "SMU": "0033A0",
+      "Stanford": "8C1515",
+      "Syracuse": "#D44500",
       "Virginia": "#232D4B",
+      "Virginia Tech": "#630031",
+      "Wake Forest": "#9E7E38",
 
       // Big 12
-      "Utah": "#CC0000",
+      "Arizona": "#CC0003",
+      "Arizona State": "8C1D40",
+      "Baylor": "#154734",
+      "BYU": "#002E5D",
+      "Cincinnati": "000000",
+      "Colorado": "#CFB87C",
+      "Houston": "#C8102E",
+      "Iowa State": "#C8102E",
+      "Kansas": "0051BA",
       "Kansas State": "#512888",
       "Oklahoma State": "#FF7500",
       "TCU": "#4D1979",
-      "Baylor": "#154734",
       "Texas Tech": "#CC0000",
-      "Colorado": "#CFB87C",
-      "BYU": "#002E5D",
       "UCF": "#BA9B37",
-      "Arizona": "#CC0003",
-      "Houston": "#C8102E",
+      "Utah": "#CC0000",
       "West Virginia": "#002855",
-      "Iowa State": "#C8102E",
 
-      // Independent & Others
+      // MAC
+      "Akron": "041E42",
+      "Ball State": "BA0C2F",
+      "Bowling Green": "4F2C1D",
+      "Buffalo": "005BBB",
+      "Central Michigan": "6A0032",
+      "Eastern Michigan": "006633",
+      "Kent State": "002664",
+      "Miami (Ohio)": "C8102E",
+      "Ohio": "00694E",
+      "Sacramento State": "043927",
+      "Toledo": "15397F",
+      "UMass": "881C1C",
+      "Western Michigan": "532E1F",
+
+      // Mountain West
+      "Air Force": "#003087",
+      "Hawai'i": "024731",
+      "Nevada": "003366",
+      "New Mexico": "BA0C2F",
+      "North Dakota State": "00583D",
+      "Northern Illinois": "C8102E",
+      "San Jose State": "0055A2",
+      "UNLV": "E31837",
+      "UTEP": "FF8200",
+      "Wyoming": "492F24",
+
+      // Pac-12
+      "Boise State": "0033A0",
+      "Colorado State": "1E4D2B",
+      "Fresno State": "C41230",
+      "Oregon State": "D73F09",
+      "San Diego State": "000000",
+      "Texas State": "501214",
+      "Utah State": "00263A",
+      "Washington State": "981E32",
+
+      // Independent & Other
       "Notre Dame": "#0C2340",
       "Navy": "#00205B",
       "Army": "#D4BF91",
-      "Air Force": "#003087",
       "Morehead State": "005EB8",
       "Samford": "002649",
-      "Stanford": "8C1515",
-      "Eastern Michigan": "006633",
       "Marist": "C8102E",
       "Jackson State": "002147",
-      "Colorado State": "1E4D2B",
-      "San Diego State": "000000",
-      "North Dakota State": "00583D",
-      "Hawai'i": "024731",
       "Tulsa": "003595",
-      "Utah State": "00263A",
-      "Nevada": "003366",
-      "New Mexico": "BA0C2F",
       "Stetson": "00523E",
       "South Carolina State": "001A72",
-      "Prairie View A&M": "330066"
+      "Prairie View A&M": "330066",
+      "Temple": "9D2235",
+      "UConn": "000E2F",
+      "East Carolina": "592A8A",
+      "North Texas": "00853E",
+      "Florida Atlantic": "003366",
+      "Davidson": "CD001A",
+      "Lafayette": "98002E"
     };
 
-    // Load CSV and handle BOM/headers safely
-    d3.csv("01_weekFull.csv", raw => {
+    // ==========================================
+    // 2. DATA INITIALIZATION & EVENT LISTENERS
+    // ==========================================
+
+    // Fetch game dataset via D3, sanitizing UTF-8 BOM characters from CSV headers
+    d3.csv("02_weekFull.csv", raw => {
       const clean = {};
       Object.keys(raw).forEach(key => {
         const normalizedKey = key.replace(/^\uFEFF/, "");
@@ -180,13 +257,16 @@
       });
       return clean;
     }).then(data => {
+      // Store globally for cascading filter lookup
       window.gameData = data;
 
+      // Seed initial controls and render view
       const initialDate = getFirstAvailableDate(window.gameData);
       updateDateSlicer(window.gameData, initialDate);
       updateCascadingFilters();
       applyFilters();
 
+      // Control Event Listeners
       document.getElementById("dateFilter").addEventListener("change", () => {
         updateCascadingFilters();
         applyFilters();
@@ -194,8 +274,16 @@
       
       document.getElementById("networkFilter").addEventListener("change", applyFilters);
       document.getElementById("timeFilter").addEventListener("change", applyFilters);
+      document.getElementById("rankedFilter").addEventListener("change", applyFilters);
     });
 
+    // ==========================================
+    // 3. FILTER & SLICER MANAGEMENT FUNCTIONS
+    // ==========================================
+
+    /**
+     * Finds chronologically earliest date in the dataset
+     */
     function getFirstAvailableDate(allData) {
       const uniqueDates = Array.from(new Set(allData.map(d => d.Date)))
         .filter(Boolean)
@@ -203,6 +291,9 @@
       return uniqueDates[0] || null;
     }
 
+    /**
+     * Populates primary Date dropdown control
+     */
     function updateDateSlicer(allData, selectedDate) {
       const uniqueDates = Array.from(new Set(allData.map(d => d.Date)))
         .filter(Boolean)
@@ -225,19 +316,32 @@
       }
     }
 
+    /**
+     * Updates dependent filters (Network, Time & Ranked Matchups) based on current Date selection
+     */
     function updateCascadingFilters() {
       const selectedDate = document.getElementById("dateFilter").value;
-      let dateFiltered = window.gameData.filter(d => d.Date === selectedDate);
+      const dateFiltered = window.gameData.filter(d => d.Date === selectedDate);
 
-      const currentNetworks = Array.from(document.getElementById("networkFilter").selectedOptions).map(o => o.value);
+      const currentNetworks = Array.from(
+        document.getElementById("networkFilter").selectedOptions
+      ).map(o => o.value);
       const currentTime = document.getElementById("timeFilter").value;
+      const currentRanked = document.getElementById("rankedFilter").value;
 
       updateNetworkSlicer(dateFiltered, currentNetworks);
       updateTimeSlicer(dateFiltered, currentTime);
+      updateRankedSlicer(dateFiltered, currentRanked);
     }
 
+    /**
+     * Populates multiselect network list for selected date
+     */
     function updateNetworkSlicer(filteredData, selectedNetworks) {
-      const uniqueNetworks = Array.from(new Set(filteredData.map(d => d.TV_Network))).filter(Boolean).sort();
+      const uniqueNetworks = Array.from(new Set(filteredData.map(d => d.TV_Network)))
+        .filter(Boolean)
+        .sort();
+        
       const networkSelect = document.getElementById("networkFilter");
       networkSelect.innerHTML = "";
 
@@ -252,6 +356,9 @@
       });
     }
 
+    /**
+     * Populates Kickoff Time dropdown for selected date
+     */
     function updateTimeSlicer(filteredData, selectedTime) {
       const uniqueTimes = Array.from(new Set(filteredData.map(d => d.Start_Time)))
         .filter(Boolean)
@@ -274,11 +381,32 @@
       }
     }
 
+    /**
+     * Populates Ranked Matchup dropdown for selected date
+     */
+    function updateRankedSlicer(filteredData, selectedRanked) {
+      const rankedSelect = document.getElementById("rankedFilter");
+      rankedSelect.innerHTML = `
+        <option value="All">All Games</option>
+        <option value="Y">Top 25</option>
+      `;
+
+      if (selectedRanked === "Y" || selectedRanked === "All") {
+        rankedSelect.value = selectedRanked;
+      } else {
+        rankedSelect.value = "All";
+      }
+    }
+
+    /**
+     * Filters global dataset against active selection states and invokes chart draw
+     */
     function applyFilters() {
       const selectedDate = document.getElementById("dateFilter").value;
       const networkSelect = document.getElementById("networkFilter");
       const selectedNetworks = Array.from(networkSelect.selectedOptions).map(o => o.value);
       const selectedTime = document.getElementById("timeFilter").value;
+      const selectedRanked = document.getElementById("rankedFilter").value;
 
       let filtered = window.gameData.filter(d => d.Date === selectedDate);
 
@@ -290,26 +418,40 @@
         filtered = filtered.filter(d => d.Start_Time === selectedTime);
       }
 
+      if (selectedRanked && selectedRanked === "Y") {
+        filtered = filtered.filter(d => d.Top_25 === "Y");
+      }
+
       renderChart(filtered);
     }
 
+    // ==========================================
+    // 4. UTILITY HELPER FUNCTIONS
+    // ==========================================
+
+    /**
+     * Extracts home team from string title ("Away at Home") and resolves team hex color
+     */
     function getHomeTeamColor(matchup) {
-      if (!matchup) return '#0d6efd';
+      if (!matchup) return '#D3D3D3';
 
       const parts = matchup.split(/\s+(?:at|vs\.?)\s+/i);
       if (parts.length < 2) return '#0d6efd';
 
       let homeTeamRaw = parts[parts.length - 1].trim();
 
-      // Strip rankings like "No. 16 ", "No. 1 ", "#5 "
+      // Strip national rankings (e.g., "No. 16 ", "No. 1 ", "#5 ")
       let homeTeam = homeTeamRaw.replace(/^(?:No\.\s*\d+|#\d+)\s+/i, '').trim();
 
-      // Strip neutral site bracket labels like "(Mercedes-Benz Stadium)"
+      // Strip neutral-site bracket labels (e.g., "(Mercedes-Benz Stadium)")
       homeTeam = homeTeam.replace(/\s*\([^)]*\)/g, '').trim();
 
-      return TEAM_COLORS[homeTeam] || '#1D2A44';
+      return TEAM_COLORS[homeTeam] || '#D3D3D3';
     }
 
+    /**
+     * Converts "HH:MM AM/PM" time strings into total minutes from midnight for charting
+     */
     function timeToMinutes(t) {
       const [time, ampm] = t.split(' ');
       let [h, m] = time.split(':').map(Number);
@@ -318,7 +460,15 @@
       return h * 60 + m;
     }
 
+    // ==========================================
+    // 5. CHART RENDER ENGINE (Plotly)
+    // ==========================================
+
+    /**
+     * Constructs and mounts horizontal Gantt timeline using Plotly stacked bars
+     */
     function renderChart(data) {
+      // Empty state handler
       if (!data || data.length === 0) {
         Plotly.newPlot('barChart', [], {
           title: 'No data matches the selected filters',
@@ -329,19 +479,23 @@
         return;
       }
 
+      // Group games by network channel row
       const grouped = d3.group(data, d => d.TV_Network);
       const traces = [];
 
       grouped.forEach((games, network) => {
+        // Sort chronologically within row
         games.sort((a, b) => timeToMinutes(a.Start_Time) - timeToMinutes(b.Start_Time));
 
         games.forEach(game => {
           const start = timeToMinutes(game.Start_Time);
           const end = timeToMinutes(game.End_Time);
+          
+          // Compute window length, supporting midnight turnover wrapped games
           const duration = end >= start ? (end - start) : (end + 1440 - start);
-
           const teamHexColor = getHomeTeamColor(game.Matchup);
 
+          // Build individual Plotly horizontal bar segment
           traces.push({
             type: 'bar',
             orientation: 'h',
@@ -356,41 +510,57 @@
             text: [game.Matchup],
             textposition: 'inside',
             insidetextanchor: 'middle',
-           hovertemplate:
-            '<b>%{text}</b><br>' +
-            'Network: ' + network + '<br>' +
-            'Kickoff: %{customdata[0]}<br>' +
-            'End: %{customdata[1]}<extra></extra>',
+            insidetextfont: {
+              family: 'Segoe UI, Arial, sans-serif'
+            },
+            hovertemplate:
+              '<b>%{text}</b><br>' +
+              'Network: ' + network + '<br>' +
+              'Kickoff: %{customdata[0]}<br>' +
+              'End: %{customdata[1]}<extra></extra>',
             customdata: [[game.Start_Time, game.End_Time]]
           });
         });
       });
 
+      // Chart layout configurations
       const layout = {
-        title: 'Game Timeline (All Times Eastern)',
         barmode: 'stack',
         autosize: true,
         xaxis: {
+          side: 'top',
           tickmode: 'array',
-          tickvals: [720, 780, 840, 900, 960, 1020, 1080, 1140, 1200, 1260, 1320, 1380, 1440],
+          // 15-minute minute offset marks from 11:00 AM to 12:00 AM
+          tickvals: [660, 720, 780, 840, 900, 960, 1020, 1080, 1140, 1200, 1260, 1320, 1380, 1440],
           ticktext: [
-            '12:00 PM', '1:00 PM', '2:00 PM', '3:00 PM', '4:00 PM', '5:00 PM', 
-            '6:00 PM', '7:00 PM', '8:00 PM', '9:00 PM', '10:00 PM', '11:00 PM', '12:00 AM'
+            '11:00 AM', '12:00 PM', '1:00 PM', '2:00 PM', '3:00 PM', '4:00 PM', 
+            '5:00 PM', '6:00 PM', '7:00 PM', '8:00 PM', '9:00 PM', '10:00 PM', '11:00 PM', '12:00 AM'
           ],
-          tickangle: -30
+          tickangle: -30,
+          tickfont: {
+            family: 'Segoe UI, Arial, sans-serif',
+            size: 10
+          }
         },
-        yaxis: {  
-          automargin: true 
+        yaxis: { 
+          automargin: true,
+          autorange: 'reversed',
+          tickfont: {
+            family: 'Segoe UI, Arial, sans-serif'
+          } 
         },
+
         margin: { l: 120, r: 40, t: 50, b: 80 },
         showlegend: false
       };
 
+      // Draw plot and ensure responsive layout sizing
       Plotly.newPlot('barChart', traces, layout, { responsive: true }).then(() => {
         Plotly.Plots.resize('barChart');
       });
     }
 
+    // Window Resize Handler
     window.addEventListener('resize', () => {
       Plotly.Plots.resize('barChart');
     });
