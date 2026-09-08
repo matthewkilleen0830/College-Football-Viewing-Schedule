@@ -36,3 +36,7 @@ html, body {
   flex: 1; /* Automatically takes all remaining height */
   min-height: 750px; /* Forces enough bar height when many networks exist */
 }
+
+#chart-container text {
+  font-family: 'Segoe UI', Tahoma;
+}
