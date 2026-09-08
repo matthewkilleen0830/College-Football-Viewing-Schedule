@@ -10,24 +10,6 @@
 
   <!-- Custom Stylesheet -->
   <link rel="stylesheet" href="styles.css">
-
-  <style>
-    /* Custom CSS to make the checkbox panel scrollable and match Bootstrap styling */
-    .checkbox-panel {
-      max-height: 200px;
-      overflow-y: auto;
-      background-color: #fff;
-      border: 1px solid #dee2e6;
-      border-radius: 0.375rem;
-      padding: 0.5rem 0.75rem;
-    }
-    .checkbox-panel .form-check {
-      margin-bottom: 0.25rem;
-    }
-    .checkbox-panel .form-check:last-child {
-      margin-bottom: 0;
-    }
-  </style>
 </head>
 <body>
 
@@ -40,31 +22,32 @@
         <div class="filter-panel">
           <h5 class="mb-3">Week 2 Selections</h5>
 
-          <!-- Single-Select Date Slicer -->
+          <!-- 1. Single-Select Date Slicer -->
           <div class="mb-3">
-            <label for="dateFilter" class="form-label">Day/Date</label>
+            <label for="dateFilter" class="form-label fw-semibold">Day/Date</label>
             <select id="dateFilter" class="form-select"></select>
           </div>
 
-          <!-- Multi-Select Checkbox Network Slicer -->
+          <!-- 2. Single-Select Kickoff Time Filter (Adaptive to Date) -->
           <div class="mb-3">
-            <label class="form-label">Media Provider</label>
+            <label for="timeFilter" class="form-label fw-semibold">Kickoff Time</label>
+            <select id="timeFilter" class="form-select"></select>
+          </div>
+
+          <!-- 3. Single-Select Ranked Matchup Filter (Adaptive to Date + Time) -->
+          <div class="mb-3">
+            <label for="rankedFilter" class="form-label fw-semibold">Ranked Teams</label>
+            <select id="rankedFilter" class="form-select"></select>
+          </div>
+
+          <!-- 4. Multi-Select Checkbox Network Slicer (Adaptive to Date + Time + Ranked) -->
+          <div class="mb-3">
+            <label class="form-label fw-semibold">Media Provider</label>
             <div id="networkFilter" class="checkbox-panel">
               <!-- Checkboxes dynamically rendered via JavaScript -->
             </div>
           </div>
 
-          <!-- Single-Select Kickoff Time Filter -->
-          <div class="mb-3">
-            <label for="timeFilter" class="form-label">Kickoff Time</label>
-            <select id="timeFilter" class="form-select"></select>
-          </div>
-
-          <!-- Single-Select Ranked Matchup Filter -->
-          <div class="mb-3">
-            <label for="rankedFilter" class="form-label">Ranked Teams</label>
-            <select id="rankedFilter" class="form-select"></select>
-          </div>
         </div>
       </div>
 
@@ -94,293 +77,145 @@
 
   <!-- Dashboard Controller Script -->
   <script>
-    // Digital networks constant list
+    // =========================================================================
+    // GLOBAL CONSTANTS & CONFIGURATION
+    // =========================================================================
+
+    // List of networks classified as purely digital/streaming
     const DIGITAL_NETWORKS = ["ESPN+", "MW+", "SECN+"];
 
-    // Shared X-Axis Config for Perfect Vertical Alignment Across Charts
+    // Shared X-Axis Time Config (Minutes from Midnight) for Vertical Alignment Across Charts
     const SHARED_X_AXIS_VALS = [660, 720, 780, 840, 900, 960, 1020, 1080, 1140, 1200, 1260, 1320, 1380, 1440];
     const SHARED_X_AXIS_TEXT = [
       '11:00 AM', '12:00 PM', '1:00 PM', '2:00 PM', '3:00 PM', '4:00 PM', 
       '5:00 PM', '6:00 PM', '7:00 PM', '8:00 PM', '9:00 PM', '10:00 PM', '11:00 PM', '12:00 AM'
     ];
 
-    // ==========================================
-    // 1. TEAM COLOR DICTIONARY
-    // ==========================================
+    // Fast O(1) Lookup Table mapping Home Teams to Primary Brand Colors
     const TEAM_COLORS = {
       // Big Ten
-      "Illinois": "#E84A27",
-      "Indiana": "#990000",
-      "Iowa": "#000000",
-      "Maryland": "#E21A23",
-      "Michigan": "#00274C",
-      "Michigan State": "#18453B",
-      "Minnesota": "#7A0019",
-      "Nebraska": "#E31837",
-      "Northwestern": "#4E2A84",     
-      "Ohio State": "#BB0000",
-      "Oregon": "#007030",
-      "Penn State": "#041E42",
-      "Purdue": "#000000",
-      "Rutgers": "#CC0033",
-      "UCLA": "#2D68C4",      
-      "USC": "#990000",
-      "Washington": "#4B2E83",      
-      "Wisconsin": "#C5050C",      
+      "Illinois": "#E84A27", "Indiana": "#990000", "Iowa": "#000000", "Maryland": "#E21A23",
+      "Michigan": "#00274C", "Michigan State": "#18453B", "Minnesota": "#7A0019", "Nebraska": "#E31837",
+      "Northwestern": "#4E2A84", "Ohio State": "#BB0000", "Oregon": "#007030", "Penn State": "#041E42",
+      "Purdue": "#000000", "Rutgers": "#CC0033", "UCLA": "#2D68C4", "USC": "#990000",
+      "Washington": "#4B2E83", "Wisconsin": "#C5050C",
 
       // SEC
-      "Alabama": "#9E1B32",
-      "Arkansas": "#9D2235",
-      "Auburn": "#0C2340",
-      "Florida": "#0021A5",
-      "Georgia": "#BA0C2F",
-      "Kentucky": "#0033A0",
-      "LSU": "#461D7C",
-      "Mississippi State": "#660000",
-      "Missouri": "#000000",
-      "Oklahoma": "#841617",
-      "Ole Miss": "#182B49",
-      "South Carolina": "#73000A",
-      "Tennessee": "#FF8200",
-      "Texas A&M": "#500000",
-      "Texas": "#BF5700",
-      "Vanderbilt": "#866D4B",
+      "Alabama": "#9E1B32", "Arkansas": "#9D2235", "Auburn": "#0C2340", "Florida": "#0021A5",
+      "Georgia": "#BA0C2F", "Kentucky": "#0033A0", "LSU": "#461D7C", "Mississippi State": "#660000",
+      "Missouri": "#000000", "Oklahoma": "#841617", "Ole Miss": "#182B49", "South Carolina": "#73000A",
+      "Tennessee": "#FF8200", "Texas A&M": "#500000", "Texas": "#BF5700", "Vanderbilt": "#866D4B",
 
       // ACC
-      "Boston College": "#98002E",
-      "Cal": "#002676",
-      "Clemson": "#F56600",
-      "Duke": "#003087",
-      "Florida State": "#782F40",
-      "Georgia Tech": "#B3A369",
-      "Louisville": "#AD0000",
-      "Miami": "#F47321",
-      "North Carolina": "#7BAFD4",
-      "NC State": "#CC0000",
-      "Pitt": "#003594",
-      "SMU": "#0033A0",
-      "Stanford": "#8C1515",
-      "Syracuse": "#D44500",
-      "Virginia": "#232D4B",
-      "Virginia Tech": "#630031",
+      "Boston College": "#98002E", "Cal": "#002676", "Clemson": "#F56600", "Duke": "#003087",
+      "Florida State": "#782F40", "Georgia Tech": "#B3A369", "Louisville": "#AD0000", "Miami": "#F47321",
+      "North Carolina": "#7BAFD4", "NC State": "#CC0000", "Pitt": "#003594", "SMU": "#0033A0",
+      "Stanford": "#8C1515", "Syracuse": "#D44500", "Virginia": "#232D4B", "Virginia Tech": "#630031",
       "Wake Forest": "#9E7E38",
 
       // Big 12
-      "Arizona": "#CC0003",
-      "Arizona State": "#8C1D40",
-      "Baylor": "#154734",
-      "BYU": "#002E5D",
-      "Cincinnati": "#000000",
-      "Colorado": "#CFB87C",
-      "Houston": "#C8102E",
-      "Iowa State": "#C8102E",
-      "Kansas": "#0051BA",
-      "Kansas State": "#512888",
-      "Oklahoma State": "#FF7500",
-      "TCU": "#4D1979",
-      "Texas Tech": "#CC0000",
-      "UCF": "#BA9B37",
-      "Utah": "#CC0000",
-      "West Virginia": "#002855",
+      "Arizona": "#CC0003", "Arizona State": "#8C1D40", "Baylor": "#154734", "BYU": "#002E5D",
+      "Cincinnati": "#000000", "Colorado": "#CFB87C", "Houston": "#C8102E", "Iowa State": "#C8102E",
+      "Kansas": "#0051BA", "Kansas State": "#512888", "Oklahoma State": "#FF7500", "TCU": "#4D1979",
+      "Texas Tech": "#CC0000", "UCF": "#BA9B37", "Utah": "#CC0000", "West Virginia": "#002855",
 
       // MAC
-      "Akron": "#041E42",
-      "Ball State": "#BA0C2F",
-      "Bowling Green": "#4F2C1D",
-      "Buffalo": "#005BBB",
-      "Central Michigan": "#6A0032",
-      "Eastern Michigan": "#006633",
-      "Kent State": "#002664",
-      "Miami (Ohio)": "#C8102E",
-      "Ohio": "#00694E",
-      "Sacramento State": "#043927",
-      "Toledo": "#15397F",
-      "UMass": "#881C1C",
-      "Western Michigan": "#532E1F",
+      "Akron": "#041E42", "Ball State": "#BA0C2F", "Bowling Green": "#4F2C1D", "Buffalo": "#005BBB",
+      "Central Michigan": "#6A0032", "Eastern Michigan": "#006633", "Kent State": "#002664",
+      "Miami (Ohio)": "#C8102E", "Ohio": "#00694E", "Sacramento State": "#043927", "Toledo": "#15397F",
+      "UMass": "#881C1C", "Western Michigan": "#532E1F",
 
       // Mountain West
-      "Air Force": "#003087",
-      "Hawai'i": "#024731",
-      "Nevada": "#003366",
-      "New Mexico": "#BA0C2F",
-      "North Dakota State": "#00583D",
-      "Northern Illinois": "#C8102E",
-      "San Jose State": "#0055A2",
-      "UNLV": "#E31837",
-      "UTEP": "#FF8200",
-      "Wyoming": "#492F24",
+      "Air Force": "#003087", "Hawai'i": "#024731", "Nevada": "#003366", "New Mexico": "#BA0C2F",
+      "North Dakota State": "#00583D", "Northern Illinois": "#C8102E", "San Jose State": "#0055A2",
+      "UNLV": "#E31837", "UTEP": "#FF8200", "Wyoming": "#492F24",
 
       // Pac-12
-      "Boise State": "#0033A0",
-      "Colorado State": "#1E4D2B",
-      "Fresno State": "#C41230",
-      "Oregon State": "#D73F09",
-      "San Diego State": "#000000",
-      "Texas State": "#501214",
-      "Utah State": "#00263A",
-      "Washington State": "#981E32",
+      "Boise State": "#0033A0", "Colorado State": "#1E4D2B", "Fresno State": "#C41230", "Oregon State": "#D73F09",
+      "San Diego State": "#000000", "Texas State": "#501214", "Utah State": "#00263A", "Washington State": "#981E32",
 
       // AAC
-      "Army": "#000000",
-      "Charlotte": "#00502F",
-      "East Carolina": "#582C83",
-      "Florida Atlantic": "#003366",
-      "Memphis": "#003087",
-      "Navy": "#0C2340",
-      "North Texas": "#00853E",
-      "Rice": "#00205B",
-      "South Florida": "#006747",
-      "Temple": "#9D2235",
-      "Tulane": "#006747",
-      "Tulsa": "#002D62",
-      "UAB": "#215732",
-      "UTSA": "#0C2340",
+      "Army": "#000000", "Charlotte": "#00502F", "East Carolina": "#582C83", "Florida Atlantic": "#003366",
+      "Memphis": "#003087", "Navy": "#0C2340", "North Texas": "#00853E", "Rice": "#00205B",
+      "South Florida": "#006747", "Temple": "#9D2235", "Tulane": "#006747", "Tulsa": "#002D62",
+      "UAB": "#215732", "UTSA": "#0C2340",
 
       // Conference USA
-      "Delaware": "#00539B",
-      "Florida International": "#001A36",
-      "Jacksonville State": "#CC0000",
-      "Kennesaw State": "#FFC629",
-      "Liberty": "#0A2342",
-      "Middle Tennessee": "#0066CC",
-      "Missouri State": "#5E0009",
-      "New Mexico State": "#891216",
-      "Sam Houston": "#F47920",
+      "Delaware": "#00539B", "Florida International": "#001A36", "Jacksonville State": "#CC0000",
+      "Kennesaw State": "#FFC629", "Liberty": "#0A2342", "Middle Tennessee": "#0066CC",
+      "Missouri State": "#5E0009", "New Mexico State": "#891216", "Sam Houston": "#F47920",
       "Western Kentucky": "#BD0F26",
 
       // Sun Belt
-      "Appalachian State": "#222222",
-      "Coastal Carolina": "#006F71",
-      "Georgia Southern": "#00152B",
-      "Georgia State": "#0039A6",
-      "James Madison": "#450084",
-      "Marshall": "#00B359",
-      "Old Dominion": "#003057",
-      "Arkansas State": "#CC0000",
-      "Louisiana": "#CE181E",
-      "Louisiana Tech": "#003087",
-      "UL Monroe": "#531B2B",
-      "South Alabama": "#00205B",
-      "Southern Miss": "#FFC72C",
-      "Troy": "#AE1127",
+      "Appalachian State": "#222222", "Coastal Carolina": "#006F71", "Georgia Southern": "#00152B",
+      "Georgia State": "#0039A6", "James Madison": "#450084", "Marshall": "#00B359",
+      "Old Dominion": "#003057", "Arkansas State": "#CC0000", "Louisiana": "#CE181E",
+      "Louisiana Tech": "#003087", "UL Monroe": "#531B2B", "South Alabama": "#00205B",
+      "Southern Miss": "#FFC72C", "Troy": "#AE1127",
 
       // Missouri Valley
-      "Illinois State": "#CE1126",
-      "Indiana State": "#00437A",
-      "Murray State": "#002147",
-      "North Dakota": "#008244",
-      "UNI": "#4B116F",
-      "South Dakota": "#AD0000",
-      "South Dakota State": "#0033A0",
-      "Southern Illinois": "#720000",
-      "Youngstown State": "#E4002B",
+      "Illinois State": "#CE1126", "Indiana State": "#00437A", "Murray State": "#002147",
+      "North Dakota": "#008244", "UNI": "#4B116F", "South Dakota": "#AD0000",
+      "South Dakota State": "#0033A0", "Southern Illinois": "#720000", "Youngstown State": "#E4002B",
 
       // Pioneer League
-      "Butler": "#002D62",
-      "Davidson": "#AC1A2F",
-      "Dayton": "#E4002B",
-      "Drake": "#003087",
-      "Marist": "#C8102E",
-      "Morehead State": "#002F6C",
-      "Presbyterian": "#002F6C",
-      "San Diego": "#007A33",
-      "St. Thomas (MN)": "#51267B",
-      "Stetson": "#005A36",
-      "Valparaiso": "#613312",
+      "Butler": "#002D62", "Davidson": "#AC1A2F", "Dayton": "#E4002B", "Drake": "#003087",
+      "Marist": "#C8102E", "Morehead State": "#002F6C", "Presbyterian": "#002F6C", "San Diego": "#007A33",
+      "St. Thomas (MN)": "#51267B", "Stetson": "#005A36", "Valparaiso": "#613312",
 
       // UAC
-      "Abilene Christian": "#4C2A85",
-      "Austin Peay": "#C41230",
-      "Central Arkansas": "#4F2683",
-      "Eastern Kentucky": "#4C151B",
-      "North Alabama": "#9E1B32",
-      "Tarleton State": "#4F2683",
-      "West Florida": "#007A87",
-      "West Georgia": "#002F6C",
+      "Abilene Christian": "#4C2A85", "Austin Peay": "#C41230", "Central Arkansas": "#4F2683",
+      "Eastern Kentucky": "#4C151B", "North Alabama": "#9E1B32", "Tarleton State": "#4F2683",
+      "West Florida": "#007A87", "West Georgia": "#002F6C",
 
       // Ohio Valley
-      "Charleston Southern": "#00205B",
-      "Eastern Illinois": "#003594",
-      "Gardner-Webb": "#CC0000",
-      "Lindenwood": "#B5A36A",
-      "SE Missouri State": "#CE1126",
-      "Tennessee State": "#002147",
-      "UT Martin": "#002A54",
-      "Western Illinois": "#663399",
+      "Charleston Southern": "#00205B", "Eastern Illinois": "#003594", "Gardner-Webb": "#CC0000",
+      "Lindenwood": "#B5A36A", "SE Missouri State": "#CE1126", "Tennessee State": "#002147",
+      "UT Martin": "#002A54", "Western Illinois": "#663399",
 
       // Patriot League
-      "Bucknell": "#003865",
-      "Colgate": "#822433",
-      "Fordham": "#860038",
-      "Georgetown": "#041E42",
-      "Holy Cross": "#602D89",
-      "Lafayette": "#9E1B32",
-      "Lehigh": "#653815",
-      "Richmond": "#8A1538",
-      "Villanova": "#00205B",
-      "William & Mary": "#115740",
+      "Bucknell": "#003865", "Colgate": "#822433", "Fordham": "#860038", "Georgetown": "#041E42",
+      "Holy Cross": "#602D89", "Lafayette": "#9E1B32", "Lehigh": "#653815", "Richmond": "#8A1538",
+      "Villanova": "#00205B", "William & Mary": "#115740",
 
       // MEAC
-      "Delaware State": "#CC0000",
-      "Howard": "#002147",
-      "Morgan State": "#FF6600",
-      "Norfolk State": "#007A3d",
-      "North Carolina Central": "#841F2B",
-      "South Carolina State": "#800000",
+      "Delaware State": "#CC0000", "Howard": "#002147", "Morgan State": "#FF6600",
+      "Norfolk State": "#007A3d", "North Carolina Central": "#841F2B", "South Carolina State": "#800000",
 
       // Big Sky
-      "Cal Poly": "#003831",
-      "Eastern Washington": "#A10022",
-      "Idaho": "#B3A369",
-      "Idaho State": "#F47920",
-      "Montana": "#660000",
-      "Montana State": "#00205B",
-      "Northern Arizona": "#002447",
-      "Northern Colorado": "#002A54",
-      "Portland State": "#154734",
-      "Sacramento State": "#043927",
-      "Southern Utah": "#DB0000",
-      "UC Davis": "#002855",
-      "Utah Tech": "#BA1C21",
-      "Weber State": "#4B2682",
+      "Cal Poly": "#003831", "Eastern Washington": "#A10022", "Idaho": "#B3A369", "Idaho State": "#F47920",
+      "Montana": "#660000", "Montana State": "#00205B", "Northern Arizona": "#002447",
+      "Northern Colorado": "#002A54", "Portland State": "#154734", "Southern Utah": "#DB0000",
+      "UC Davis": "#002855", "Utah Tech": "#BA1C21", "Weber State": "#4B2682",
 
       // Southern
-      "Chattanooga": "#003865",
-      "East Tennessee State": "#002855",
-      "Furman": "#4D1979",
-      "Mercer": "#F26522",
-      "Samford": "#CC0000",
-      "Tennessee Tech": "#4B2E83",
-      "The Citadel": "#3A75C4",
-      "VMI": "#E4002B",
-      "Western Carolina": "#51267B",
-      "Wofford": "#B3A369",
+      "Chattanooga": "#003865", "East Tennessee State": "#002855", "Furman": "#4D1979", "Mercer": "#F26522",
+      "Samford": "#CC0000", "Tennessee Tech": "#4B2E83", "The Citadel": "#3A75C4", "VMI": "#E4002B",
+      "Western Carolina": "#51267B", "Wofford": "#B3A369",
 
       // Southland
-      "East Texas A&M": "#002F6C",
-      "Houston Christian": "#002F6C",
-      "Lamar": "#D11919",
-      "McNeese": "#004B87",
-      "Nicholls": "#C41230",
-      "Northwestern State": "#F15A22",
-      "SE Louisiana": "#244A31",
-      "Stephen F. Austin": "#330066",
-      "UIW": "#C41230",
-      "UT Rio Grand Valley": "#F05A28",
+      "East Texas A&M": "#002F6C", "Houston Christian": "#002F6C", "Lamar": "#D11919", "McNeese": "#004B87",
+      "Nicholls": "#C41230", "Northwestern State": "#F15A22", "SE Louisiana": "#244A31",
+      "Stephen F. Austin": "#330066", "UIW": "#C41230", "UT Rio Grand Valley": "#F05A28",
 
       // Independent & Other
-      "Notre Dame": "#0C2340",
-      "Jackson State": "#002147",
-      "South Carolina State": "#001A72",
-      "Prairie View A&M": "#330066",
-      "UConn": "#000E2F"
+      "Notre Dame": "#0C2340", "Jackson State": "#002147", "Prairie View A&M": "#330066", "UConn": "#000E2F"
     };
 
-    // ==========================================
-    // 2. DATA INITIALIZATION & EVENT LISTENERS
-    // ==========================================
+    // Cached DOM Reference Element map for performance optimization
+    const DOM = {
+      dateFilter: document.getElementById("dateFilter"),
+      timeFilter: document.getElementById("timeFilter"),
+      rankedFilter: document.getElementById("rankedFilter"),
+      networkFilter: document.getElementById("networkFilter")
+    };
+
+    // =========================================================================
+    // DATA INITIALIZATION & EVENT LISTENERS
+    // =========================================================================
 
     d3.csv("02_weekFull.csv", raw => {
+      // Clean Byte Order Mark (BOM) artifact from CSV headers if present
       const clean = {};
       Object.keys(raw).forEach(key => {
         const normalizedKey = key.replace(/^\uFEFF/, "");
@@ -390,24 +225,38 @@
     }).then(data => {
       window.gameData = data;
 
+      // Initialize Day/Date Slicer Options
       const initialDate = getFirstAvailableDate(window.gameData);
       updateDateSlicer(window.gameData, initialDate);
+
+      // Perform initial adaptive cascading cascade setup and render
       updateCascadingFilters();
       applyFilters();
 
-      document.getElementById("dateFilter").addEventListener("change", () => {
+      // Set up hierarchical cascading event listeners
+      DOM.dateFilter.addEventListener("change", () => {
         updateCascadingFilters();
         applyFilters();
       });
-      
-      document.getElementById("timeFilter").addEventListener("change", applyFilters);
-      document.getElementById("rankedFilter").addEventListener("change", applyFilters);
+
+      DOM.timeFilter.addEventListener("change", () => {
+        updateCascadingFilters(2); // Cascade down from Kickoff Time
+        applyFilters();
+      });
+
+      DOM.rankedFilter.addEventListener("change", () => {
+        updateCascadingFilters(3); // Cascade down from Ranked Teams
+        applyFilters();
+      });
     });
 
-    // ==========================================
-    // 3. FILTER & SLICER MANAGEMENT FUNCTIONS
-    // ==========================================
+    // =========================================================================
+    // CASCADING SLICER ARCHITECTURE
+    // =========================================================================
 
+    /**
+     * Extracts and sorts distinct dates chronologically.
+     */
     function getFirstAvailableDate(allData) {
       const uniqueDates = Array.from(new Set(allData.map(d => d.Date)))
         .filter(Boolean)
@@ -415,74 +264,136 @@
       return uniqueDates[0] || null;
     }
 
+    /**
+     * Populates the primary Date selection dropdown.
+     */
     function updateDateSlicer(allData, selectedDate) {
       const uniqueDates = Array.from(new Set(allData.map(d => d.Date)))
         .filter(Boolean)
         .sort((a, b) => new Date(a) - new Date(b));
 
-      const dateSelect = document.getElementById("dateFilter");
-      dateSelect.innerHTML = "";
-
+      DOM.dateFilter.innerHTML = "";
       uniqueDates.forEach(date => {
         const opt = document.createElement("option");
         opt.value = date;
         opt.textContent = date;
-        dateSelect.appendChild(opt);
+        DOM.dateFilter.appendChild(opt);
       });
 
       if (selectedDate && uniqueDates.includes(selectedDate)) {
-        dateSelect.value = selectedDate;
+        DOM.dateFilter.value = selectedDate;
       } else if (uniqueDates.length > 0) {
-        dateSelect.value = uniqueDates[0];
+        DOM.dateFilter.value = uniqueDates[0];
       }
     }
 
-    function updateCascadingFilters() {
-  const selectedDate = document.getElementById("dateFilter").value;
-  const dateFiltered = window.gameData.filter(d => d.Date === selectedDate);
+    /**
+     * Manages top-down hierarchical cascading option dependencies.
+     * Order: Date (1) -> Time (2) -> Ranked (3) -> Media Provider (4)
+     * @param {number} startLevel - Specifies level where modification was triggered.
+     */
+    function updateCascadingFilters(startLevel = 1) {
+      const selectedDate = DOM.dateFilter.value;
+      
+      // Step 1: Filter base data by Day/Date
+      let subset = window.gameData.filter(d => d.Date === selectedDate);
 
-  // Check if "All Providers" master toggle is currently checked
-  const allCheckbox = document.getElementById("net_all");
-  const wasAllChecked = allCheckbox ? allCheckbox.checked : true;
+      // Step 2: Update Kickoff Time Slicer (adaptive to Date selection)
+      if (startLevel <= 1) {
+        const currentTime = DOM.timeFilter.value;
+        updateTimeSlicer(subset, currentTime);
+      }
+      
+      // Filter subset by selected Kickoff Time
+      const selectedTime = DOM.timeFilter.value;
+      if (selectedTime && selectedTime !== "All") {
+        subset = subset.filter(d => d.Start_Time === selectedTime);
+      }
 
-  let checkedBoxes = [];
-  if (!wasAllChecked) {
-    // Only capture specific selections if "All Providers" was NOT selected
-    checkedBoxes = Array.from(
-      document.querySelectorAll("#networkFilter .network-checkbox:checked")
-    ).map(cb => cb.value);
-  }
+      // Step 3: Update Ranked Teams Slicer (adaptive to Date + Kickoff Time)
+      if (startLevel <= 2) {
+        const currentRanked = DOM.rankedFilter.value;
+        updateRankedSlicer(subset, currentRanked);
+      }
 
-  const currentTime = document.getElementById("timeFilter").value;
-  const currentRanked = document.getElementById("rankedFilter").value;
+      // Filter subset by selected Ranked Status
+      const selectedRanked = DOM.rankedFilter.value;
+      if (selectedRanked && selectedRanked === "Y") {
+        subset = subset.filter(d => d.Top_25 === "Y");
+      }
 
-  // Passing [] when "All Providers" was checked forces all new date's networks to stay checked
-  updateNetworkSlicer(dateFiltered, checkedBoxes);
-  updateTimeSlicer(dateFiltered, currentTime);
-  updateRankedSlicer(dateFiltered, currentRanked);
-}
+      // Step 4: Update Media Provider Slicer (adaptive to Date + Time + Ranked)
+      const allCheckbox = document.getElementById("net_all");
+      const wasAllChecked = allCheckbox ? allCheckbox.checked : true;
 
+      let checkedBoxes = [];
+      if (!wasAllChecked) {
+        checkedBoxes = Array.from(
+          document.querySelectorAll("#networkFilter .network-checkbox:checked")
+        ).map(cb => cb.value);
+      }
+
+      updateNetworkSlicer(subset, checkedBoxes);
+    }
+
+    /**
+     * Rebuilds Kickoff Time dropdown dynamically based on available games.
+     */
+    function updateTimeSlicer(filteredData, selectedTime) {
+      const uniqueTimes = Array.from(new Set(filteredData.map(d => d.Start_Time)))
+        .filter(Boolean)
+        .sort((a, b) => timeToMinutes(a) - timeToMinutes(b));
+
+      DOM.timeFilter.innerHTML = '<option value="All">All Times</option>';
+
+      uniqueTimes.forEach(time => {
+        const opt = document.createElement("option");
+        opt.value = time;
+        opt.textContent = time;
+        DOM.timeFilter.appendChild(opt);
+      });
+
+      DOM.timeFilter.value = (selectedTime && (uniqueTimes.includes(selectedTime) || selectedTime === "All"))
+        ? selectedTime 
+        : "All";
+    }
+
+    /**
+     * Updates Ranked Matches dropdown based on filtered availability.
+     */
+    function updateRankedSlicer(filteredData, selectedRanked) {
+      DOM.rankedFilter.innerHTML = `
+        <option value="All">All Games</option>
+        <option value="Y">AP Top 25</option>
+      `;
+
+      DOM.rankedFilter.value = (selectedRanked === "Y" || selectedRanked === "All") 
+        ? selectedRanked 
+        : "All";
+    }
+
+    /**
+     * Dynamically constructs individual network checkboxes and handles master selection toggling.
+     */
     function updateNetworkSlicer(filteredData, selectedNetworks) {
       const uniqueNetworks = Array.from(new Set(filteredData.map(d => d.TV_Network)))
         .filter(Boolean)
         .sort();
         
-      const container = document.getElementById("networkFilter");
-      container.innerHTML = "";
+      DOM.networkFilter.innerHTML = "";
 
-      // Determine if "All Providers" should start checked (default on initial render or if all are checked)
       const isAllChecked = selectedNetworks.length === 0 || uniqueNetworks.every(net => selectedNetworks.includes(net));
 
-      // 1. Create "All Providers" Master Toggle
+      // Master Toggle Element
       const allDiv = document.createElement("div");
       allDiv.className = "form-check border-bottom pb-1 mb-2";
       allDiv.innerHTML = `
         <input class="form-check-input" type="checkbox" id="net_all" ${isAllChecked ? 'checked' : ''}>
         <label class="form-check-label fw-bold" for="net_all">All Providers</label>
       `;
-      container.appendChild(allDiv);
+      DOM.networkFilter.appendChild(allDiv);
 
-      // 2. Create individual network checkboxes
+      // Individual Checkbox Nodes
       uniqueNetworks.forEach((net, idx) => {
         const isChecked = isAllChecked || selectedNetworks.includes(net);
         const div = document.createElement("div");
@@ -491,79 +402,40 @@
           <input class="form-check-input network-checkbox" type="checkbox" value="${net}" id="net_${idx}" ${isChecked ? 'checked' : ''}>
           <label class="form-check-label" for="net_${idx}">${net}</label>
         `;
-        container.appendChild(div);
+        DOM.networkFilter.appendChild(div);
       });
 
-      // 3. Setup event handler for "All Providers" master checkbox
+      // Master Checkbox Event Attachment
       const allCheckbox = document.getElementById("net_all");
-      const itemCheckboxes = container.querySelectorAll(".network-checkbox");
+      const itemCheckboxes = DOM.networkFilter.querySelectorAll(".network-checkbox");
 
       allCheckbox.addEventListener("change", (e) => {
         itemCheckboxes.forEach(cb => cb.checked = e.target.checked);
         applyFilters();
       });
 
-      // 4. Setup event handlers for individual network checkboxes
+      // Child Checkbox Event Attachment
       itemCheckboxes.forEach(cb => {
         cb.addEventListener("change", () => {
-          const allChecked = Array.from(itemCheckboxes).every(item => item.checked);
-          allCheckbox.checked = allChecked;
+          allCheckbox.checked = Array.from(itemCheckboxes).every(item => item.checked);
           applyFilters();
         });
       });
     }
 
-    function updateTimeSlicer(filteredData, selectedTime) {
-      const uniqueTimes = Array.from(new Set(filteredData.map(d => d.Start_Time)))
-        .filter(Boolean)
-        .sort((a, b) => new Date("1970/01/01 " + a) - new Date("1970/01/01 " + b));
-
-      const timeSelect = document.getElementById("timeFilter");
-      timeSelect.innerHTML = '<option value="All">All Times</option>';
-
-      uniqueTimes.forEach(time => {
-        const opt = document.createElement("option");
-        opt.value = time;
-        opt.textContent = time;
-        timeSelect.appendChild(opt);
-      });
-
-      if (selectedTime && (uniqueTimes.includes(selectedTime) || selectedTime === "All")) {
-        timeSelect.value = selectedTime;
-      } else {
-        timeSelect.value = "All";
-      }
-    }
-
-    function updateRankedSlicer(filteredData, selectedRanked) {
-      const rankedSelect = document.getElementById("rankedFilter");
-      rankedSelect.innerHTML = `
-        <option value="All">All Games</option>
-        <option value="Y">AP Top 25</option>
-      `;
-
-      if (selectedRanked === "Y" || selectedRanked === "All") {
-        rankedSelect.value = selectedRanked;
-      } else {
-        rankedSelect.value = "All";
-      }
-    }
-
+    /**
+     * Evaluates all active control values and executes chart re-rendering.
+     */
     function applyFilters() {
-      const selectedDate = document.getElementById("dateFilter").value;
-      
-      // Get all checked network values
+      const selectedDate = DOM.dateFilter.value;
+      const selectedTime = DOM.timeFilter.value;
+      const selectedRanked = DOM.rankedFilter.value;
+
       const checkedBoxes = Array.from(
         document.querySelectorAll("#networkFilter .network-checkbox:checked")
       ).map(cb => cb.value);
-      
-      const selectedTime = document.getElementById("timeFilter").value;
-      const selectedRanked = document.getElementById("rankedFilter").value;
 
       let filtered = window.gameData.filter(d => d.Date === selectedDate);
-
-      // Filter by checked networks
-      filtered = filtered.filter(d => checkedBoxes.includes(d.TV_Network));
 
       if (selectedTime && selectedTime !== "All") {
         filtered = filtered.filter(d => d.Start_Time === selectedTime);
@@ -573,6 +445,8 @@
         filtered = filtered.filter(d => d.Top_25 === "Y");
       }
 
+      filtered = filtered.filter(d => checkedBoxes.includes(d.TV_Network));
+
       const primaryData = filtered.filter(d => !DIGITAL_NETWORKS.includes(d.TV_Network));
       const digitalData = filtered.filter(d => DIGITAL_NETWORKS.includes(d.TV_Network));
 
@@ -580,24 +454,49 @@
       renderChart('digitalChart', digitalData, true);
     }
 
-    // ==========================================
-    // 4. UTILITY HELPER FUNCTIONS
-    // ==========================================
+    // =========================================================================
+    // UTILITY HELPER FUNCTIONS
+    // =========================================================================
 
-    function getHomeTeamColor(matchup) {
-      if (!matchup) return '#D3D3D3';
+    /**
+ * Resolves the primary brand hex color for the home team by searching
+ * TEAM_COLORS for exact key matches.
+ * 
+ * @param {string} matchup - Full matchup string (e.g., "#12 Ohio State at Penn State (4-0)")
+ * @returns {string} Hex color string or default gray fallback (#D3D3D3)
+ */
+function getHomeTeamColor(matchup) {
+  if (!matchup) return '#D3D3D3';
 
-      const parts = matchup.split(/\s+(?:at|vs\.?)\s+/i);
-      if (parts.length < 2) return '#0d6efd';
+  // Split by " at " or " vs " / " vs. " (case-insensitive) to isolate the home team segment
+  const parts = matchup.split(/\s+(?:at|vs\.?)\s+/i);
+  if (parts.length < 2) return '#0d6efd';
 
-      let homeTeamRaw = parts[parts.length - 1].trim();
+  const homeTeamRaw = parts[parts.length - 1].trim();
 
-      let homeTeam = homeTeamRaw.replace(/^(?:No\.\s*\d+|#\d+)\s+/i, '').trim();
-      homeTeam = homeTeam.replace(/\s*\([^)]*\)/g, '').trim();
+  // 1. Direct O(1) exact lookup on the raw home team string
+  if (Object.prototype.hasOwnProperty.call(TEAM_COLORS, homeTeamRaw)) {
+    return TEAM_COLORS[homeTeamRaw];
+  }
 
-      return TEAM_COLORS[homeTeam] || '#D3D3D3';
-    }
+  // 2. Strip rank prefixes (e.g. "No. 5", "#12") and parenthetical strings (e.g. "(4-0)", "(OT)")
+  let homeTeamClean = homeTeamRaw
+    .replace(/^(?:No\.\s*\d+|#\d+)\s+/i, '')
+    .replace(/\s*\([^)]*\)/g, '')
+    .trim();
 
+  // 3. Direct O(1) exact lookup on the cleaned home team name
+  if (Object.prototype.hasOwnProperty.call(TEAM_COLORS, homeTeamClean)) {
+    return TEAM_COLORS[homeTeamClean];
+  }
+
+  // 4. Default fallback if no exact key matches are found in TEAM_COLORS
+  return '#D3D3D3';
+}
+
+    /**
+     * Converts standard AM/PM time strings into absolute minute integers from midnight.
+     */
     function timeToMinutes(t) {
       if (!t) return 0;
       const [time, ampm] = t.split(' ');
@@ -607,6 +506,9 @@
       return h * 60 + m;
     }
 
+    /**
+     * Allocates overlapping games on the same network to stacked sub-rows.
+     */
     function resolveOverlapSubRows(games) {
       games.sort((a, b) => timeToMinutes(a.Start_Time) - timeToMinutes(b.Start_Time));
 
@@ -642,9 +544,9 @@
       return { assignedGames, totalSubRows: subRowEndTimes.length };
     }
 
-    // ==========================================
-    // 5. CHART RENDER ENGINE (Plotly)
-    // ==========================================
+    // =========================================================================
+    // CHART RENDER ENGINE (Plotly.js)
+    // =========================================================================
 
     function renderChart(targetId, data, isDigital = false) {
       const container = document.getElementById(targetId);
@@ -653,7 +555,7 @@
         container.style.height = '120px';
         Plotly.newPlot(targetId, [], {
           title: {
-            text: isDigital ? 'No Digital/Streaming games matching user selection.' : 'No games matching user selection.',
+            text: isDigital ? 'No Digital/Streaming games matching selection.' : 'No primary games matching selection.',
             font: { size: 14 }
           },
           xaxis: { visible: false },
@@ -665,17 +567,16 @@
 
       const grouped = d3.group(data, d => d.TV_Network);
       const traces = [];
-      const yTicks = []; // Stores unique internal row keys
-      const yTickLabels = []; // Stores the display label (clean network name)
+      const yTicks = [];
+      const yTickLabels = [];
 
       grouped.forEach((games, network) => {
         const { assignedGames, totalSubRows } = resolveOverlapSubRows(games);
 
-        // Pre-create internal unique keys and display text for all sub-rows of this network
         for (let i = 0; i < totalSubRows; i++) {
           const rowKey = `${network}_row_${i}`;
           yTicks.push(rowKey);
-          yTickLabels.push(network); // All rows for this provider map to just "ESPN+", "MW+", etc.
+          yTickLabels.push(network);
         }
 
         assignedGames.forEach(game => {
@@ -700,9 +601,7 @@
             text: [game.Matchup],
             textposition: 'inside',
             insidetextanchor: 'middle',
-            insidetextfont: {
-              family: 'Segoe UI, Arial, sans-serif'
-            },
+            insidetextfont: { family: 'Segoe UI, Arial, sans-serif' },
             hovertemplate:
               '<b>%{text}</b><br>' +
               'Network: ' + network + '<br>' +
@@ -723,7 +622,6 @@
         barmode: 'stack',
         bargap: 0.15,
         autosize: true,
-        height: 30,
         margin: { l: 91, r: 15, t: 50, b: 20 },
         xaxis: {
           side: 'top',
@@ -733,10 +631,7 @@
           tickvals: SHARED_X_AXIS_VALS,
           ticktext: SHARED_X_AXIS_TEXT,
           tickangle: -30,
-          tickfont: {
-            family: 'Segoe UI, Arial, sans-serif',
-            size: 10
-          },
+          tickfont: { family: 'Segoe UI, Arial, sans-serif', size: 10 },
           showgrid: true,
           gridcolor: '#e9ecef',
           autorange: false,
@@ -745,30 +640,29 @@
         yaxis: { 
           autorange: 'reversed',
           tickmode: 'array',
-          tickvals: yTicks,       // Internal unique row keys
-          ticktext: yTickLabels, // Display text (e.g. "ESPN+", "MW+", "SECN+")
-          tickfont: {
-            family: 'Segoe UI, Arial, sans-serif'
-          },
+          tickvals: yTicks,
+          ticktext: yTickLabels,
+          tickfont: { family: 'Segoe UI, Arial, sans-serif' },
           automargin: false
         },
         showlegend: false
       };
 
-      const config = {
-        responsive: true,
-        displayModeBar: false
-      };
+      const config = { responsive: true, displayModeBar: false };
 
       Plotly.newPlot(targetId, traces, layout, config).then(() => {
         Plotly.Plots.resize(targetId);
       });
     }
 
-    // Trigger Plotly responsive redrawing on window resize
+    // Debounced window resize handler for fluid Plotly redrawing
+    let resizeTimer;
     window.addEventListener('resize', () => {
-      Plotly.Plots.resize('barChart');
-      Plotly.Plots.resize('digitalChart');
+      clearTimeout(resizeTimer);
+      resizeTimer = setTimeout(() => {
+        Plotly.Plots.resize('barChart');
+        Plotly.Plots.resize('digitalChart');
+      }, 100);
     });
   </script>
 </body>
