@@ -20,7 +20,7 @@
 
     /* Outer Dashboard Layout Wrapper */
     .main-wrapper {
-      min-height: 98vh;
+      min-height: 96vh;
       display: flex;
       flex-direction: column;
     }
@@ -34,13 +34,15 @@
       height: 100%;
     }
 
-    /* Main Gantt Chart Wrapper */
+    /* Main Gantt Chart Wrapper - Container scrolls if chart exceeds screen */
     .chart-container {
       background-color: #fff;
       border-radius: 8px;
       padding: 1.25rem;
       box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
-      height: 96vh;
+      min-height: 96vh;
+      max-height: 96vh;
+      overflow-y: auto;
       display: flex;
       flex-direction: column;
     }
@@ -48,8 +50,6 @@
     /* Plotly Chart Mount Target */
     #barChart {
       width: 100%;
-      flex-grow: 1;
-      min-height: 50vh;
     }
   </style>
 </head>
@@ -62,17 +62,17 @@
       <!-- Sidebar Controls Section -->
       <div class="col-md-2">
         <div class="filter-panel">
-          <h5 class="mb-3">Selections</h5>
+          <h5 class="mb-3">Week 2 Selections</h5>
 
           <!-- Single-Select Date Slicer -->
           <div class="mb-3">
-            <label for="dateFilter" class="form-label">Date</label>
+            <label for="dateFilter" class="form-label">Day/Date</label>
             <select id="dateFilter" class="form-select"></select>
           </div>
 
           <!-- Multi-Select Network Slicer -->
           <div class="mb-3">
-            <label for="networkFilter" class="form-label">TV Provider</label>
+            <label for="networkFilter" class="form-label">Media Provider</label>
             <select id="networkFilter" class="form-select" multiple size="8"></select>
           </div>
 
@@ -84,7 +84,7 @@
 
           <!-- Single-Select Ranked Matchup Filter -->
           <div class="mb-3">
-            <label for="rankedFilter" class="form-label">Ranked Matchup</label>
+            <label for="rankedFilter" class="form-label">Ranked Teams</label>
             <select id="rankedFilter" class="form-select"></select>
           </div>
         </div>
@@ -150,8 +150,8 @@
       "Vanderbilt": "#866D4B",
 
       // ACC
-      "Boston College": "98002E",
-      "Cal": "002676",
+      "Boston College": "#98002E",
+      "Cal": "#002676",
       "Clemson": "#F56600",
       "Duke": "#003087",
       "Florida State": "#782F40",
@@ -161,8 +161,8 @@
       "North Carolina": "#7BAFD4",
       "NC State": "#CC0000",
       "Pitt": "#003594",
-      "SMU": "0033A0",
-      "Stanford": "8C1515",
+      "SMU": "#0033A0",
+      "Stanford": "#8C1515",
       "Syracuse": "#D44500",
       "Virginia": "#232D4B",
       "Virginia Tech": "#630031",
@@ -170,14 +170,14 @@
 
       // Big 12
       "Arizona": "#CC0003",
-      "Arizona State": "8C1D40",
+      "Arizona State": "#8C1D40",
       "Baylor": "#154734",
       "BYU": "#002E5D",
-      "Cincinnati": "000000",
+      "Cincinnati": "#000000",
       "Colorado": "#CFB87C",
       "Houston": "#C8102E",
       "Iowa State": "#C8102E",
-      "Kansas": "0051BA",
+      "Kansas": "#0051BA",
       "Kansas State": "#512888",
       "Oklahoma State": "#FF7500",
       "TCU": "#4D1979",
@@ -187,61 +187,110 @@
       "West Virginia": "#002855",
 
       // MAC
-      "Akron": "041E42",
-      "Ball State": "BA0C2F",
-      "Bowling Green": "4F2C1D",
-      "Buffalo": "005BBB",
-      "Central Michigan": "6A0032",
-      "Eastern Michigan": "006633",
-      "Kent State": "002664",
-      "Miami (Ohio)": "C8102E",
-      "Ohio": "00694E",
-      "Sacramento State": "043927",
-      "Toledo": "15397F",
-      "UMass": "881C1C",
-      "Western Michigan": "532E1F",
+      "Akron": "#041E42",
+      "Ball State": "#BA0C2F",
+      "Bowling Green": "#4F2C1D",
+      "Buffalo": "#005BBB",
+      "Central Michigan": "#6A0032",
+      "Eastern Michigan": "#006633",
+      "Kent State": "#002664",
+      "Miami (Ohio)": "#C8102E",
+      "Ohio": "#00694E",
+      "Sacramento State": "#043927",
+      "Toledo": "#15397F",
+      "UMass": "#881C1C",
+      "Western Michigan": "#532E1F",
 
       // Mountain West
       "Air Force": "#003087",
-      "Hawai'i": "024731",
-      "Nevada": "003366",
-      "New Mexico": "BA0C2F",
-      "North Dakota State": "00583D",
-      "Northern Illinois": "C8102E",
-      "San Jose State": "0055A2",
-      "UNLV": "E31837",
-      "UTEP": "FF8200",
-      "Wyoming": "492F24",
+      "Hawai'i": "#024731",
+      "Nevada": "#003366",
+      "New Mexico": "#BA0C2F",
+      "North Dakota State": "#00583D",
+      "Northern Illinois": "#C8102E",
+      "San Jose State": "#0055A2",
+      "UNLV": "#E31837",
+      "UTEP": "#FF8200",
+      "Wyoming": "#492F24",
 
       // Pac-12
-      "Boise State": "0033A0",
-      "Colorado State": "1E4D2B",
-      "Fresno State": "C41230",
-      "Oregon State": "D73F09",
-      "San Diego State": "000000",
-      "Texas State": "501214",
-      "Utah State": "00263A",
-      "Washington State": "981E32",
+      "Boise State": "#0033A0",
+      "Colorado State": "#1E4D2B",
+      "Fresno State": "#C41230",
+      "Oregon State": "#D73F09",
+      "San Diego State": "#000000",
+      "Texas State": "#501214",
+      "Utah State": "#00263A",
+      "Washington State": "#981E32",
+
+      // AAC
+      "Army": "#000000",
+      "Charlotte": "#00502F",
+      "East Carolina": "#582C83",
+      "Florida Atlantic": "#003366",
+      "Memphis": "#003087",
+      "Navy": "#0C2340",
+      "North Texas": "#00853E",
+      "Rice": "#00205B",
+      "South Florida": "#006747",
+      "Temple": "#9D2235",
+      "Tulane": "#006747",
+      "Tulsa": "#002D62",
+      "UAB": "#215732",
+      "UTSA": "#0C2340",
+
+      // Conference USA
+      "Delaware": "#00539B",
+      "Florida International": "#001A36",
+      "Jacksonville State": "#CC0000",
+      "Kennesaw State": "#FFC629",
+      "Liberty": "#0A2342",
+      "Middle Tennessee": "#0066CC",
+      "Missouri State": "#5E0009",
+      "New Mexico State": "#891216",
+      "Sam Houston": "#F47920",
+      "Western Kentucky": "#BD0F26",
+
+      // Sun Belt
+      "Appalachian State": "#222222",
+      "Coastal Carolina": "#006F71",
+      "Georgia Southern": "#00152B",
+      "Georgia State": "#0039A6",
+      "James Madison": "#450084",
+      "Marshall": "#00B359",
+      "Old Dominion": "#003057",
+      "Arkansas State": "#CC0000",
+      "Louisiana": "#CE181E",
+      "Louisiana Tech": "#003087",
+      "UL Monroe": "#531B2B",
+      "South Alabama": "#00205B",
+      "Southern Miss": "#FFC72C",
+      "Texas State": "#501214",
+      "Troy": "#AE1127",
+
+      // Missouri Valley
+      "Illinois State": "#CE1126",
+      "Indiana State": "#00437A",
+      "Murray State": "#002147",
+      "North Dakota": "#008244",
+      "UNI": "#4B116F",
+      "South Dakota": "#AD0000",
+      "South Dakota State": "#0033A0",
+      "Southern Illinois": "#720000",
+      "Youngstown State": "#E4002B",
 
       // Independent & Other
       "Notre Dame": "#0C2340",
-      "Navy": "#00205B",
-      "Army": "#D4BF91",
-      "Morehead State": "005EB8",
-      "Samford": "002649",
-      "Marist": "C8102E",
-      "Jackson State": "002147",
-      "Tulsa": "003595",
-      "Stetson": "00523E",
-      "South Carolina State": "001A72",
-      "Prairie View A&M": "330066",
-      "Temple": "9D2235",
-      "UConn": "000E2F",
-      "East Carolina": "592A8A",
-      "North Texas": "00853E",
-      "Florida Atlantic": "003366",
-      "Davidson": "CD001A",
-      "Lafayette": "98002E"
+      "Morehead State": "#005EB8",
+      "Samford": "#002649",
+      "Marist": "#C8102E",
+      "Jackson State": "#002147",
+      "Stetson": "#00523E",
+      "South Carolina State": "#001A72",
+      "Prairie View A&M": "#330066",
+      "UConn": "#000E2F",
+      "Davidson": "#CD001A",
+      "Lafayette": "#98002E"
     };
 
     // ==========================================
@@ -453,6 +502,7 @@
      * Converts "HH:MM AM/PM" time strings into total minutes from midnight for charting
      */
     function timeToMinutes(t) {
+      if (!t) return 0;
       const [time, ampm] = t.split(' ');
       let [h, m] = time.split(':').map(Number);
       if (ampm === 'PM' && h !== 12) h += 12;
@@ -468,10 +518,13 @@
      * Constructs and mounts horizontal Gantt timeline using Plotly stacked bars
      */
     function renderChart(data) {
+      const container = document.getElementById('barChart');
+
       // Empty state handler
       if (!data || data.length === 0) {
+        container.style.height = '96vh';
         Plotly.newPlot('barChart', [], {
-          title: 'No data matches the selected filters',
+          title: 'No ranked teams per user selections.',
           xaxis: { visible: false },
           yaxis: { visible: false },
           showlegend: false
@@ -483,7 +536,12 @@
       const grouped = d3.group(data, d => d.TV_Network);
       const traces = [];
 
+      // Track unique Y-axis row labels to calculate chart height dynamically
+      const uniqueYLabels = new Set();
+
       grouped.forEach((games, network) => {
+        uniqueYLabels.add(network);
+
         // Sort chronologically within row
         games.sort((a, b) => timeToMinutes(a.Start_Time) - timeToMinutes(b.Start_Time));
 
@@ -523,10 +581,20 @@
         });
       });
 
+      // FIXED BAR HEIGHT CALCULATIONS
+      const ROW_HEIGHT = 29; // Pixel height assigned to each network row
+      const PADDING = 100;    // Top and bottom margin padding for axes & labels
+      const calculatedHeight = (uniqueYLabels.size * ROW_HEIGHT) + PADDING;
+
+      // Update container element height
+      container.style.height = `${calculatedHeight}px`;
+
       // Chart layout configurations
       const layout = {
         barmode: 'stack',
+        bargap: 0.1, // Preserves proportional gap between rows so bars retain thickness
         autosize: true,
+        height: calculatedHeight,
         xaxis: {
           side: 'top',
           tickmode: 'array',
@@ -549,8 +617,7 @@
             family: 'Segoe UI, Arial, sans-serif'
           } 
         },
-
-        margin: { l: 120, r: 40, t: 50, b: 80 },
+        margin: { l: 120, r: 40, t: 50, b: 30 },
         showlegend: false
       };
 
