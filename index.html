@@ -1,46 +1,49 @@
+<!-- DocType declaration -->
 <!DOCTYPE html>
 <html lang="en">
+
+<!-- Define header and page title -->
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>College Football Broadcast Dashboard</title>
 
-  <!-- External Stylesheets -->
+  <!-- Bootstrap Stylesheets -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 
-  <!-- Custom Stylesheet -->
+  <!-- CSS Stylesheet -->
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
 
-  <!-- Application Layout Root -->
+  <!-- Application Layout -->
   <div class="container-fluid px-4 py-3 main-wrapper">
     <div class="row g-3 flex-grow-1">
 
-      <!-- Sidebar Controls Section -->
+      <!-- Slicer Selection Controls Section -->
       <div class="col-md-2 align-self-start">
         <div class="filter-panel">
           <h5 class="mb-3">Week 2 Selections</h5>
 
-          <!-- 1. Single-Select Date Slicer -->
+          <!-- Single-Select Date Slicer -->
           <div class="mb-3">
             <label for="dateFilter" class="form-label fw-semibold">Day/Date</label>
             <select id="dateFilter" class="form-select"></select>
           </div>
 
-          <!-- 2. Single-Select Kickoff Time Filter (Adaptive to Date) -->
+          <!-- Single-Select Kickoff Time Filter (Adaptive to Date) -->
           <div class="mb-3">
             <label for="timeFilter" class="form-label fw-semibold">Kickoff Time</label>
             <select id="timeFilter" class="form-select"></select>
           </div>
 
-          <!-- 3. Single-Select Ranked Matchup Filter (Adaptive to Date + Time) -->
+          <!-- Single-Select Ranked Matchup Filter (Adaptive to Date + Time) -->
           <div class="mb-3">
             <label for="rankedFilter" class="form-label fw-semibold">Ranked Teams</label>
             <select id="rankedFilter" class="form-select"></select>
           </div>
 
-          <!-- 4. Multi-Select Checkbox Conference Slicer (Adaptive to Date + Time + Ranked) -->
+          <!-- Multi-Select Checkbox Conference Slicer (Adaptive to Date + Time + Ranked) -->
           <div class="mb-3">
             <label class="form-label fw-semibold">Conference</label>
             <div id="conferenceFilter" class="checkbox-panel">
@@ -48,7 +51,7 @@
             </div>
           </div>
 
-          <!-- 5. Multi-Select Checkbox Network Slicer (Adaptive to Date + Time + Ranked + Conference) -->
+          <!-- Multi-Select Checkbox Network Slicer (Adaptive to Date + Time + Ranked + Conference) -->
           <div class="mb-3">
             <label class="form-label fw-semibold">Media Provider</label>
             <div id="networkFilter" class="checkbox-panel">
@@ -59,16 +62,16 @@
         </div>
       </div>
 
-      <!-- Main Dashboard Visualization Display -->
+<!-- Main Dashboard Visualization Display -->
 <div class="col-md-10 charts-column">
   
-  <!-- Primary Broadcast Networks Chart Container -->
+  <!-- Primary Networks Chart Container -->
   <div class="chart-container top-chart" id="networkChartContainer">
     <h5 class="mb-2">College Football Guide (all times Central Time)</h5>
     <div id="barChart" class="plotly-chart"></div>
   </div>
 
-  <!-- Digital / Plus Streaming Networks Chart Container -->
+  <!-- Streaming Networks Chart Container -->
   <div class="chart-container bottom-chart" id="digitalChartContainer">
     <h6 class="mb-2">Streaming Providers (all times Central Time)</h6>
     <div id="digitalChart" class="plotly-chart"></div>
@@ -79,7 +82,7 @@
     </div>
   </div>
 
-  <!-- Third-Party Dependencies -->
+  <!-- Enable D3.js and Plotly Dependencies -->
   <script src="https://d3js.org/d3.v7.min.js"></script>
   <script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
 
@@ -90,7 +93,7 @@
     // =========================================================================
 
     // List of networks classified as purely digital/streaming
-    const DIGITAL_NETWORKS = ["ESPN+", "MW+", "SECN+"];
+    const DIGITAL_NETWORKS = ["ACCNX", "Peacock", "ESPN+", "MW+", "SECN+"];
 
     // Preferred Conference Display Priority
     const PREFERRED_CONF_ORDER = [
@@ -113,7 +116,7 @@
       '5:00 PM', '6:00 PM', '7:00 PM', '8:00 PM', '9:00 PM', '10:00 PM', '11:00 PM', '12:00 AM'
     ];
 
-    // Fast O(1) Lookup Table mapping Home Teams to Primary Brand Colors
+    // Lookup Table mapping Home Teams to Primary Brand Colors
     const TEAM_COLORS = {
       // Big Ten
       "Illinois": "#E84A27", "Indiana": "#990000", "Iowa": "#000000", "Maryland": "#E21A23",
@@ -125,7 +128,7 @@
       // SEC
       "Alabama": "#9E1B32", "Arkansas": "#9D2235", "Auburn": "#0C2340", "Florida": "#0021A5",
       "Georgia": "#BA0C2F", "Kentucky": "#0033A0", "LSU": "#461D7C", "Mississippi State": "#660000",
-      "Missouri": "#000000", "Oklahoma": "#841617", "Ole Miss": "#182B49", "South Carolina": "#73000A",
+      "Missouri": "#000000", "Oklahoma": "#841617", "Ole Miss": "#14213D", "South Carolina": "#73000A",
       "Tennessee": "#FF8200", "Texas A&M": "#500000", "Texas": "#BF5700", "Vanderbilt": "#866D4B",
 
       // ACC
@@ -237,6 +240,7 @@
     // DATA INITIALIZATION & EVENT LISTENERS
     // =========================================================================
 
+    // Loads CSV data, strips any UTF-8 BOM characters from column headers, and assigns the clean dataset to window.gameData
     d3.csv("02_weekFull.csv", raw => {
       // Clean Byte Order Mark (BOM) artifact from CSV headers if present
       const clean = {};
@@ -277,9 +281,7 @@
     // CASCADING SLICER ARCHITECTURE
     // =========================================================================
 
-    /**
-     * Extracts and sorts distinct dates chronologically.
-     */
+    // Extract and sort distinct dates chronologically
     function getFirstAvailableDate(allData) {
       const uniqueDates = Array.from(new Set(allData.map(d => d.Date)))
         .filter(Boolean)
@@ -287,9 +289,7 @@
       return uniqueDates[0] || null;
     }
 
-    /**
-     * Populates the primary Date selection dropdown.
-     */
+    // Populate the primary Date selection dropdown
     function updateDateSlicer(allData, selectedDate) {
       const uniqueDates = Array.from(new Set(allData.map(d => d.Date)))
         .filter(Boolean)
@@ -310,18 +310,16 @@
       }
     }
 
-    /**
-     * Manages top-down hierarchical cascading option dependencies.
-     * Order: Date (1) -> Time (2) -> Ranked (3) -> Conference (4) -> Media Provider (5)
-     * @param {number} startLevel - Specifies level where modification was triggered.
-     */
+    // Manage top-down hierarchical cascading option dependencies
+    // Order: Date (1) -> Time (2) -> Ranked (3) -> Conference (4) -> Media Provider (5)
+    // @param {number} startLevel - Specifies level where modification was triggered
     function updateCascadingFilters(startLevel = 1) {
       const selectedDate = DOM.dateFilter.value;
       
-      // Step 1: Filter base data by Day/Date
+      // Filter base data by Day/Date
       let subset = window.gameData.filter(d => d.Date === selectedDate);
 
-      // Step 2: Update Kickoff Time Slicer (adaptive to Date selection)
+      // Update Kickoff Time Slicer (adaptive to Date selection)
       if (startLevel <= 1) {
         const currentTime = DOM.timeFilter.value;
         updateTimeSlicer(subset, currentTime);
@@ -333,7 +331,7 @@
         subset = subset.filter(d => d.Start_Time === selectedTime);
       }
 
-      // Step 3: Update Ranked Teams Slicer (adaptive to Date + Kickoff Time)
+      // Update Ranked Teams Slicer (adaptive to Date + Kickoff Time)
       if (startLevel <= 2) {
         const currentRanked = DOM.rankedFilter.value;
         updateRankedSlicer(subset, currentRanked);
@@ -345,7 +343,7 @@
         subset = subset.filter(d => d.Top_25 === "Y");
       }
 
-      // Step 4: Update Conference Slicer (adaptive to Date + Time + Ranked)
+      // Update Conference Slicer (adaptive to Date + Time + Ranked)
       const allConfCheckbox = document.getElementById("conf_all");
       const wasAllConfChecked = allConfCheckbox ? allConfCheckbox.checked : true;
 
@@ -369,7 +367,7 @@
         );
       }
 
-      // Step 5: Update Media Provider Slicer (adaptive to Date + Time + Ranked + Conference)
+      // Update Media Provider Slicer (adaptive to Date + Time + Ranked + Conference)
       const allNetCheckbox = document.getElementById("net_all");
       const wasAllNetChecked = allNetCheckbox ? allNetCheckbox.checked : true;
 
@@ -383,9 +381,7 @@
       updateNetworkSlicer(subset, checkedNetworks);
     }
 
-    /**
-     * Rebuilds Kickoff Time dropdown dynamically based on available games.
-     */
+    // Rebuild Kickoff Time dropdown dynamically based on available games
     function updateTimeSlicer(filteredData, selectedTime) {
       const uniqueTimes = Array.from(new Set(filteredData.map(d => d.Start_Time)))
         .filter(Boolean)
@@ -405,9 +401,7 @@
         : "All";
     }
 
-    /**
-     * Updates Ranked Matches dropdown based on filtered availability.
-     */
+    // Update Ranked Matches dropdown based on filtered availability
     function updateRankedSlicer(filteredData, selectedRanked) {
       DOM.rankedFilter.innerHTML = `
         <option value="All">All Games</option>
@@ -419,10 +413,8 @@
         : "All";
     }
 
-/**
- * Dynamically constructs individual conference checkboxes sorted by preferred priority.
- * Defaults to "All Conferences" checked on initial load.
- */
+// Dynamically construct individual conference checkboxes sorted by preferred priority
+// Defaults to "All Conferences" checked on initial load
 function updateConferenceSlicer(filteredData, selectedConferences = []) {
   // Aggregate conferences from both Visitor_Conference and Home_Conference
   const extractedConfs = new Set();
@@ -447,7 +439,7 @@ function updateConferenceSlicer(filteredData, selectedConferences = []) {
   const hasSelectionPassed = Array.isArray(selectedConferences) && selectedConferences.length > 0;
   const isAllChecked = !hasSelectionPassed || orderedConfs.every(conf => selectedConferences.includes(conf));
 
-  // 1. Master Toggle Element
+  // Master Toggle Element
   const allDiv = document.createElement("div");
   allDiv.className = "form-check border-bottom pb-1 mb-2";
   allDiv.innerHTML = `
@@ -456,7 +448,7 @@ function updateConferenceSlicer(filteredData, selectedConferences = []) {
   `;
   DOM.conferenceFilter.appendChild(allDiv);
 
-  // 2. Individual Checkbox Nodes
+  // Individual Checkbox Nodes
   orderedConfs.forEach((conf, idx) => {
     const isChecked = isAllChecked || selectedConferences.includes(conf);
     const div = document.createElement("div");
@@ -468,7 +460,7 @@ function updateConferenceSlicer(filteredData, selectedConferences = []) {
     DOM.conferenceFilter.appendChild(div);
   });
 
-  // 3. Event Listener Setup
+  // Event Listener Setup
   const allCheckbox = document.getElementById("conf_all");
   const itemCheckboxes = DOM.conferenceFilter.querySelectorAll(".conf-checkbox");
 
@@ -485,10 +477,7 @@ function updateConferenceSlicer(filteredData, selectedConferences = []) {
   });
 }
 
-/**
- * Helper function to handle cascading downstream from Conference changes
- * without re-rendering the Conference control HTML itself.
- */
+// Helper function to handle cascading downstream from Conference changes without re-rendering Conference control HTML itself
 function cascadeFromConference() {
   const selectedDate = DOM.dateFilter.value;
   let subset = window.gameData.filter(d => d.Date === selectedDate);
@@ -529,9 +518,7 @@ function cascadeFromConference() {
   applyFilters();
 }
 
-    /**
-     * Dynamically constructs individual network checkboxes and handles master selection toggling.
-     */
+    //Dynamically construct individual network checkboxes and handle master selection toggling
     function updateNetworkSlicer(filteredData, selectedNetworks) {
       const uniqueNetworks = Array.from(new Set(filteredData.map(d => d.TV_Network)))
         .filter(Boolean)
@@ -580,9 +567,7 @@ function cascadeFromConference() {
       });
     }
 
-    /**
-     * Evaluates all active control values and executes chart re-rendering.
-     */
+    // Evaluate all active control values and execute chart re-rendering
     function applyFilters() {
   const selectedDate = DOM.dateFilter.value;
   const selectedTime = DOM.timeFilter.value;
@@ -628,45 +613,39 @@ function cascadeFromConference() {
     // UTILITY HELPER FUNCTIONS
     // =========================================================================
 
-    /**
-     * Resolves the primary brand hex color for the home team by searching
-     * TEAM_COLORS for exact key matches.
-     * 
-     * @param {string} matchup - Full matchup string (e.g., "#12 Ohio State at Penn State (4-0)")
-     * @returns {string} Hex color string or default gray fallback (#D3D3D3)
-     */
+    // Resolve the primary brand hex color for the home team by searching TEAM_COLORS for exact key matches
+    // @param {string} matchup - Full matchup string (e.g., "#1 Ohio State at Penn State (4-0)")
+    // @returns {string} Hex color string or default gray fallback (#D3D3D3)
     function getHomeTeamColor(matchup) {
       if (!matchup) return '#D3D3D3';
 
-      // Split by " at " or " vs " / " vs. " (case-insensitive) to isolate the home team segment
+      // Split text string by " at " or " vs " / " vs. " (case-insensitive) to isolate the home team segment
       const parts = matchup.split(/\s+(?:at|vs\.?)\s+/i);
       if (parts.length < 2) return '#D3D3D3';
 
       const homeTeamRaw = parts[parts.length - 1].trim();
 
-      // 1. Direct O(1) exact lookup on the raw home team string
+      // Direct exact lookup on the raw home team string
       if (Object.prototype.hasOwnProperty.call(TEAM_COLORS, homeTeamRaw)) {
         return TEAM_COLORS[homeTeamRaw];
       }
 
-      // 2. Strip rank prefixes (e.g. "No. 5", "#12") and parenthetical strings (e.g. "(4-0)", "(OT)")
+      // Strip rank prefixes (e.g. "No. 5", "#12") and parenthetical strings (e.g. "(4-0)", "(OT)")
       let homeTeamClean = homeTeamRaw
         .replace(/^(?:No\.\s*\d+|#\d+)\s+/i, '')
         .replace(/\s*\([^)]*\)/g, '')
         .trim();
 
-      // 3. Direct O(1) exact lookup on the cleaned home team name
+      // Direct exact lookup on the cleaned home team name
       if (Object.prototype.hasOwnProperty.call(TEAM_COLORS, homeTeamClean)) {
         return TEAM_COLORS[homeTeamClean];
       }
 
-      // 4. Default fallback if no exact key matches are found in TEAM_COLORS
+      // Default fallback color (light gray) if no exact key matches are found in TEAM_COLORS
       return '#D3D3D3';
     }
 
-    /**
-     * Converts standard AM/PM time strings into absolute minute integers from midnight.
-     */
+    // Convert standard AM/PM time strings into absolute minute integers from midnight
     function timeToMinutes(t) {
       if (!t) return 0;
       const [time, ampm] = t.split(' ');
@@ -676,9 +655,7 @@ function cascadeFromConference() {
       return h * 60 + m;
     }
 
-    /**
-     * Allocates overlapping games on the same network to stacked sub-rows.
-     */
+    // Allocates overlapping games on the same network to stacked sub-rows
     function resolveOverlapSubRows(games) {
       games.sort((a, b) => timeToMinutes(a.Start_Time) - timeToMinutes(b.Start_Time));
 
@@ -721,7 +698,7 @@ function cascadeFromConference() {
     function renderChart(targetId, data, isDigital = false) {
   const container = document.getElementById(targetId);
 
-  // 1. Empty / No Data Fallback
+  // Empty / No Data Fallback
   if (!data || data.length === 0) {
     container.style.height = '120px';
     Plotly.newPlot(targetId, [], {
@@ -783,7 +760,7 @@ function cascadeFromConference() {
     });
   });
 
-  // 2. Strict Row Height Math
+  // Strict Row Height Math
   const ROW_HEIGHT = 30; // Exact target height per bar/row
   const TOP_AXIS_PADDING = 80; // Buffer space for top time axis and margins
   const totalRows = yTicks.length;
@@ -795,9 +772,9 @@ function cascadeFromConference() {
   container.style.height = `${calculatedPlotHeight}px`;
 
   const layout = {
-    height: calculatedPlotHeight, // Locks Plotly canvas height strictly to JS calculation
+    height: calculatedPlotHeight, // Lock Plotly canvas height strictly to JS calculation
     barmode: 'stack',
-    bargap: 0.10,                 
+    bargap: 0.15,                 
     autosize: true,
     margin: {
       l: 100,
