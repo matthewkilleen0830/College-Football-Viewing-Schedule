@@ -65,10 +65,10 @@ html, body {
   min-height: auto !important;
 }
 
-/* Guaranteed spacing between cards regardless of flex context */
+/* Guaranteed spacing between cards regardless of flex context
 .chart-container:not(:last-child) {
   margin-bottom: 1.25rem;
-}
+} */
 
 /* Plotly Canvas setup */
 .plotly-chart {
