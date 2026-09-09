@@ -136,9 +136,9 @@
       "Wake Forest": "#9E7E38",
 
       // Big 12
-      "Arizona": "#CC0003", "Arizona State": "#8C1D40", "Baylor": "#154734", "BYU": "#002E5D",
+      "Arizona": "#CC0003", "Arizona State": "#8C1D40", "Baylor": "#154734", "BYU": "#0062B8",
       "Cincinnati": "#000000", "Colorado": "#CFB87C", "Houston": "#C8102E", "Iowa State": "#C8102E",
-      "Kansas": "#0051BA", "Kansas State": "#512888", "Oklahoma State": "#FF7500", "TCU": "#4D1979",
+      "Kansas": "#0051BA", "Kansas State": "#512888", "Oklahoma State": "#FE5C00", "TCU": "#4D1979",
       "Texas Tech": "#CC0000", "UCF": "#BA9B37", "Utah": "#CC0000", "West Virginia": "#002855",
 
       // MAC
@@ -640,7 +640,7 @@ function cascadeFromConference() {
 
       // Split by " at " or " vs " / " vs. " (case-insensitive) to isolate the home team segment
       const parts = matchup.split(/\s+(?:at|vs\.?)\s+/i);
-      if (parts.length < 2) return '#0d6efd';
+      if (parts.length < 2) return '#D3D3D3';
 
       const homeTeamRaw = parts[parts.length - 1].trim();
 
@@ -797,15 +797,17 @@ function cascadeFromConference() {
   const layout = {
     height: calculatedPlotHeight, // Locks Plotly canvas height strictly to JS calculation
     barmode: 'stack',
-    bargap: 0.10,                 // 15% spacing leaves ~25.5px bar thickness inside 30px row
+    bargap: 0.10,                 
     autosize: true,
     margin: {
       l: 100,
       r: 20,
       t: 60,
-      b: 20
+      b: 10
     },
+    dragmode: false,
     xaxis: {
+      fixedrange: true,
       side: 'top',
       type: 'linear',
       range: [660, 1500],
@@ -814,6 +816,9 @@ function cascadeFromConference() {
       ticktext: SHARED_X_AXIS_TEXT,
       tickangle: -30,
       tickfont: { family: 'Segoe UI, Arial, sans-serif', size: 10 },
+      ticks: 'outside',
+      ticklen: 10,
+      tickcolor: 'rgba(0,0,0,0)',
       showgrid: true,
       gridcolor: '#e9ecef',
       autorange: false,
