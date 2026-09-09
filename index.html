@@ -40,7 +40,15 @@
             <select id="rankedFilter" class="form-select"></select>
           </div>
 
-          <!-- 4. Multi-Select Checkbox Network Slicer (Adaptive to Date + Time + Ranked) -->
+          <!-- 4. Multi-Select Checkbox Conference Slicer (Adaptive to Date + Time + Ranked) -->
+          <div class="mb-3">
+            <label class="form-label fw-semibold">Conference</label>
+            <div id="conferenceFilter" class="checkbox-panel">
+              <!-- Checkboxes dynamically rendered via JavaScript -->
+            </div>
+          </div>
+
+          <!-- 5. Multi-Select Checkbox Network Slicer (Adaptive to Date + Time + Ranked + Conference) -->
           <div class="mb-3">
             <label class="form-label fw-semibold">Media Provider</label>
             <div id="networkFilter" class="checkbox-panel">
@@ -83,6 +91,20 @@
 
     // List of networks classified as purely digital/streaming
     const DIGITAL_NETWORKS = ["ESPN+", "MW+", "SECN+"];
+
+    // Preferred Conference Display Priority
+    const PREFERRED_CONF_ORDER = [
+      "ACC",
+      "Big Ten",
+      "Big XII",
+      "SEC",
+      "AAC",
+      "Conference USA",
+      "MAC",
+      "Mountain West",
+      "Pac-12",
+      "Sun Belt"
+    ];
 
     // Shared X-Axis Time Config (Minutes from Midnight) for Vertical Alignment Across Charts
     const SHARED_X_AXIS_VALS = [660, 720, 780, 840, 900, 960, 1020, 1080, 1140, 1200, 1260, 1320, 1380, 1440];
@@ -207,6 +229,7 @@
       dateFilter: document.getElementById("dateFilter"),
       timeFilter: document.getElementById("timeFilter"),
       rankedFilter: document.getElementById("rankedFilter"),
+      conferenceFilter: document.getElementById("conferenceFilter"),
       networkFilter: document.getElementById("networkFilter")
     };
 
@@ -229,13 +252,13 @@
       const initialDate = getFirstAvailableDate(window.gameData);
       updateDateSlicer(window.gameData, initialDate);
 
-      // Perform initial adaptive cascading cascade setup and render
+      // Perform initial adaptive cascading setup and render
       updateCascadingFilters();
       applyFilters();
 
       // Set up hierarchical cascading event listeners
       DOM.dateFilter.addEventListener("change", () => {
-        updateCascadingFilters();
+        updateCascadingFilters(1);
         applyFilters();
       });
 
@@ -289,7 +312,7 @@
 
     /**
      * Manages top-down hierarchical cascading option dependencies.
-     * Order: Date (1) -> Time (2) -> Ranked (3) -> Media Provider (4)
+     * Order: Date (1) -> Time (2) -> Ranked (3) -> Conference (4) -> Media Provider (5)
      * @param {number} startLevel - Specifies level where modification was triggered.
      */
     function updateCascadingFilters(startLevel = 1) {
@@ -322,18 +345,42 @@
         subset = subset.filter(d => d.Top_25 === "Y");
       }
 
-      // Step 4: Update Media Provider Slicer (adaptive to Date + Time + Ranked)
-      const allCheckbox = document.getElementById("net_all");
-      const wasAllChecked = allCheckbox ? allCheckbox.checked : true;
+      // Step 4: Update Conference Slicer (adaptive to Date + Time + Ranked)
+      const allConfCheckbox = document.getElementById("conf_all");
+      const wasAllConfChecked = allConfCheckbox ? allConfCheckbox.checked : true;
 
-      let checkedBoxes = [];
-      if (!wasAllChecked) {
-        checkedBoxes = Array.from(
+      let checkedConferences = [];
+      if (!wasAllConfChecked) {
+        checkedConferences = Array.from(
+          document.querySelectorAll("#conferenceFilter .conf-checkbox:checked")
+        ).map(cb => cb.value);
+      }
+
+      updateConferenceSlicer(subset, checkedConferences);
+
+      // Filter subset by selected Conferences
+      const activeConfBoxes = Array.from(
+        document.querySelectorAll("#conferenceFilter .conf-checkbox:checked")
+      ).map(cb => cb.value);
+
+      if (activeConfBoxes.length > 0) {
+        subset = subset.filter(d => 
+          activeConfBoxes.includes(d.Visitor_Conference) || activeConfBoxes.includes(d.Home_Conference)
+        );
+      }
+
+      // Step 5: Update Media Provider Slicer (adaptive to Date + Time + Ranked + Conference)
+      const allNetCheckbox = document.getElementById("net_all");
+      const wasAllNetChecked = allNetCheckbox ? allNetCheckbox.checked : true;
+
+      let checkedNetworks = [];
+      if (!wasAllNetChecked) {
+        checkedNetworks = Array.from(
           document.querySelectorAll("#networkFilter .network-checkbox:checked")
         ).map(cb => cb.value);
       }
 
-      updateNetworkSlicer(subset, checkedBoxes);
+      updateNetworkSlicer(subset, checkedNetworks);
     }
 
     /**
@@ -371,6 +418,116 @@
         ? selectedRanked 
         : "All";
     }
+
+/**
+ * Dynamically constructs individual conference checkboxes sorted by preferred priority.
+ * Defaults to "All Conferences" checked on initial load.
+ */
+function updateConferenceSlicer(filteredData, selectedConferences = []) {
+  // Aggregate conferences from both Visitor_Conference and Home_Conference
+  const extractedConfs = new Set();
+  filteredData.forEach(d => {
+    if (d.Visitor_Conference) extractedConfs.add(d.Visitor_Conference.trim());
+    if (d.Home_Conference) extractedConfs.add(d.Home_Conference.trim());
+  });
+
+  const uniqueConfs = Array.from(extractedConfs).filter(Boolean);
+
+  // Separate into preferred order and remaining alphabetical order
+  const priorityConfs = PREFERRED_CONF_ORDER.filter(conf => uniqueConfs.includes(conf));
+  const remainingConfs = uniqueConfs
+    .filter(conf => !PREFERRED_CONF_ORDER.includes(conf))
+    .sort((a, b) => a.localeCompare(b));
+
+  const orderedConfs = [...priorityConfs, ...remainingConfs];
+
+  DOM.conferenceFilter.innerHTML = "";
+
+  // DEFAULT TO TRUE: If no explicitly passed list, default to selecting all
+  const hasSelectionPassed = Array.isArray(selectedConferences) && selectedConferences.length > 0;
+  const isAllChecked = !hasSelectionPassed || orderedConfs.every(conf => selectedConferences.includes(conf));
+
+  // 1. Master Toggle Element
+  const allDiv = document.createElement("div");
+  allDiv.className = "form-check border-bottom pb-1 mb-2";
+  allDiv.innerHTML = `
+    <input class="form-check-input" type="checkbox" id="conf_all" ${isAllChecked ? 'checked' : ''}>
+    <label class="form-check-label fw-bold" for="conf_all">All Conferences</label>
+  `;
+  DOM.conferenceFilter.appendChild(allDiv);
+
+  // 2. Individual Checkbox Nodes
+  orderedConfs.forEach((conf, idx) => {
+    const isChecked = isAllChecked || selectedConferences.includes(conf);
+    const div = document.createElement("div");
+    div.className = "form-check";
+    div.innerHTML = `
+      <input class="form-check-input conf-checkbox" type="checkbox" value="${conf}" id="conf_${idx}" ${isChecked ? 'checked' : ''}>
+      <label class="form-check-label" for="conf_${idx}">${conf}</label>
+    `;
+    DOM.conferenceFilter.appendChild(div);
+  });
+
+  // 3. Event Listener Setup
+  const allCheckbox = document.getElementById("conf_all");
+  const itemCheckboxes = DOM.conferenceFilter.querySelectorAll(".conf-checkbox");
+
+  allCheckbox.addEventListener("change", (e) => {
+    itemCheckboxes.forEach(cb => cb.checked = e.target.checked);
+    cascadeFromConference();
+  });
+
+  itemCheckboxes.forEach(cb => {
+    cb.addEventListener("change", () => {
+      allCheckbox.checked = Array.from(itemCheckboxes).every(item => item.checked);
+      cascadeFromConference();
+    });
+  });
+}
+
+/**
+ * Helper function to handle cascading downstream from Conference changes
+ * without re-rendering the Conference control HTML itself.
+ */
+function cascadeFromConference() {
+  const selectedDate = DOM.dateFilter.value;
+  let subset = window.gameData.filter(d => d.Date === selectedDate);
+
+  const selectedTime = DOM.timeFilter.value;
+  if (selectedTime && selectedTime !== "All") {
+    subset = subset.filter(d => d.Start_Time === selectedTime);
+  }
+
+  const selectedRanked = DOM.rankedFilter.value;
+  if (selectedRanked && selectedRanked === "Y") {
+    subset = subset.filter(d => d.Top_25 === "Y");
+  }
+
+  // Filter subset by active checked conferences
+  const activeConfBoxes = Array.from(
+    document.querySelectorAll("#conferenceFilter .conf-checkbox:checked")
+  ).map(cb => cb.value);
+
+  if (activeConfBoxes.length > 0) {
+    subset = subset.filter(d => 
+      activeConfBoxes.includes(d.Visitor_Conference) || activeConfBoxes.includes(d.Home_Conference)
+    );
+  }
+
+  // Update downstream Media Provider slicer options & render charts
+  const allNetCheckbox = document.getElementById("net_all");
+  const wasAllNetChecked = allNetCheckbox ? allNetCheckbox.checked : true;
+
+  let checkedNetworks = [];
+  if (!wasAllNetChecked) {
+    checkedNetworks = Array.from(
+      document.querySelectorAll("#networkFilter .network-checkbox:checked")
+    ).map(cb => cb.value);
+  }
+
+  updateNetworkSlicer(subset, checkedNetworks);
+  applyFilters();
+}
 
     /**
      * Dynamically constructs individual network checkboxes and handles master selection toggling.
@@ -431,7 +588,11 @@
       const selectedTime = DOM.timeFilter.value;
       const selectedRanked = DOM.rankedFilter.value;
 
-      const checkedBoxes = Array.from(
+      const checkedConferences = Array.from(
+        document.querySelectorAll("#conferenceFilter .conf-checkbox:checked")
+      ).map(cb => cb.value);
+
+      const checkedNetworks = Array.from(
         document.querySelectorAll("#networkFilter .network-checkbox:checked")
       ).map(cb => cb.value);
 
@@ -445,7 +606,13 @@
         filtered = filtered.filter(d => d.Top_25 === "Y");
       }
 
-      filtered = filtered.filter(d => checkedBoxes.includes(d.TV_Network));
+      if (checkedConferences.length > 0) {
+        filtered = filtered.filter(d => 
+          checkedConferences.includes(d.Visitor_Conference) || checkedConferences.includes(d.Home_Conference)
+        );
+      }
+
+      filtered = filtered.filter(d => checkedNetworks.includes(d.TV_Network));
 
       const primaryData = filtered.filter(d => !DIGITAL_NETWORKS.includes(d.TV_Network));
       const digitalData = filtered.filter(d => DIGITAL_NETWORKS.includes(d.TV_Network));
@@ -459,40 +626,40 @@
     // =========================================================================
 
     /**
- * Resolves the primary brand hex color for the home team by searching
- * TEAM_COLORS for exact key matches.
- * 
- * @param {string} matchup - Full matchup string (e.g., "#12 Ohio State at Penn State (4-0)")
- * @returns {string} Hex color string or default gray fallback (#D3D3D3)
- */
-function getHomeTeamColor(matchup) {
-  if (!matchup) return '#D3D3D3';
+     * Resolves the primary brand hex color for the home team by searching
+     * TEAM_COLORS for exact key matches.
+     * 
+     * @param {string} matchup - Full matchup string (e.g., "#12 Ohio State at Penn State (4-0)")
+     * @returns {string} Hex color string or default gray fallback (#D3D3D3)
+     */
+    function getHomeTeamColor(matchup) {
+      if (!matchup) return '#D3D3D3';
 
-  // Split by " at " or " vs " / " vs. " (case-insensitive) to isolate the home team segment
-  const parts = matchup.split(/\s+(?:at|vs\.?)\s+/i);
-  if (parts.length < 2) return '#0d6efd';
+      // Split by " at " or " vs " / " vs. " (case-insensitive) to isolate the home team segment
+      const parts = matchup.split(/\s+(?:at|vs\.?)\s+/i);
+      if (parts.length < 2) return '#0d6efd';
 
-  const homeTeamRaw = parts[parts.length - 1].trim();
+      const homeTeamRaw = parts[parts.length - 1].trim();
 
-  // 1. Direct O(1) exact lookup on the raw home team string
-  if (Object.prototype.hasOwnProperty.call(TEAM_COLORS, homeTeamRaw)) {
-    return TEAM_COLORS[homeTeamRaw];
-  }
+      // 1. Direct O(1) exact lookup on the raw home team string
+      if (Object.prototype.hasOwnProperty.call(TEAM_COLORS, homeTeamRaw)) {
+        return TEAM_COLORS[homeTeamRaw];
+      }
 
-  // 2. Strip rank prefixes (e.g. "No. 5", "#12") and parenthetical strings (e.g. "(4-0)", "(OT)")
-  let homeTeamClean = homeTeamRaw
-    .replace(/^(?:No\.\s*\d+|#\d+)\s+/i, '')
-    .replace(/\s*\([^)]*\)/g, '')
-    .trim();
+      // 2. Strip rank prefixes (e.g. "No. 5", "#12") and parenthetical strings (e.g. "(4-0)", "(OT)")
+      let homeTeamClean = homeTeamRaw
+        .replace(/^(?:No\.\s*\d+|#\d+)\s+/i, '')
+        .replace(/\s*\([^)]*\)/g, '')
+        .trim();
 
-  // 3. Direct O(1) exact lookup on the cleaned home team name
-  if (Object.prototype.hasOwnProperty.call(TEAM_COLORS, homeTeamClean)) {
-    return TEAM_COLORS[homeTeamClean];
-  }
+      // 3. Direct O(1) exact lookup on the cleaned home team name
+      if (Object.prototype.hasOwnProperty.call(TEAM_COLORS, homeTeamClean)) {
+        return TEAM_COLORS[homeTeamClean];
+      }
 
-  // 4. Default fallback if no exact key matches are found in TEAM_COLORS
-  return '#D3D3D3';
-}
+      // 4. Default fallback if no exact key matches are found in TEAM_COLORS
+      return '#D3D3D3';
+    }
 
     /**
      * Converts standard AM/PM time strings into absolute minute integers from midnight.
