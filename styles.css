@@ -20,8 +20,6 @@ html, body {
   position: sticky;
   top: 1rem;
   z-index: 100;
-  
-  /* Matches chart column viewport spanning */
   height: fit-content; 
   max-height: calc(100vh - 2rem);
   overflow-y: auto;
@@ -45,11 +43,11 @@ html, body {
   margin-bottom: 0;
 }
 
-/* Flex Column Parent for Charts */
+/* Column Parent for Charts */
 .charts-column {
   display: flex;
   flex-direction: column;
-  gap: 1.25rem;
+  gap: 1.25rem; /* Gap for flex containers */
 }
 
 /* Base Chart Card Containers */
@@ -58,30 +56,23 @@ html, body {
   border-radius: 8px;
   padding: 1rem 1rem 0 1rem;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
-  overflow: hidden; /* Hide container scrollbars; cards grow naturally */
+  overflow: hidden;
   display: flex;
   flex-direction: column;
   width: calc(100% - 2rem);
   margin-right: 2rem;
-  height: auto !important; /* Allow JS calculations to govern height strictly */
+  height: auto !important;
   min-height: auto !important;
 }
 
-/* Remove flex stretching from chart wrappers */
-.top-chart,
-.bottom-chart {
-  flex: none !important;
+/* Guaranteed spacing between cards regardless of flex context */
+.chart-container:not(:last-child) {
+  margin-bottom: 1.25rem;
 }
 
 /* Plotly Canvas setup */
 .plotly-chart {
   width: 100%;
-}
-
-/* Bottom Container (Automatically takes remaining space) */
-.bottom-chart {
-  flex: 1;
-  min-height: 0; /* Allows internal scrolling if content overflows */
 }
 
 .chart-container text {
