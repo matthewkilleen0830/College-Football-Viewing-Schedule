@@ -4,8 +4,10 @@
 
 <!-- Define header and page title -->
 <head>
+  <link rel="icon" type="image/x-icon" href="/favicon.png">
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="color-scheme" content="dark">
+  <!-- <meta name="viewport" content="width=device-width, initial-scale=1.0"> -->
   <title>College Football Broadcast Dashboard</title>
 
   <!-- Bootstrap Stylesheets -->
@@ -62,18 +64,18 @@
         </div>
       </div>
 
-<!-- Main Dashboard Visualization Display -->
+      <!-- Main Dashboard Visualization Display -->
 <div class="col-md-10 charts-column">
   
   <!-- Primary Networks Chart Container -->
   <div class="chart-container top-chart" id="networkChartContainer">
-    <h5 class="mb-2">College Football Guide (all times Central Time)</h5>
+    <h5 class="mb-2 chart-title">College Football Viewing Guide (all times Central Time)</h5>
     <div id="barChart" class="plotly-chart"></div>
   </div>
 
   <!-- Streaming Networks Chart Container -->
   <div class="chart-container bottom-chart" id="digitalChartContainer">
-    <h6 class="mb-2">Streaming Providers (all times Central Time)</h6>
+    <h5 class="mb-2 chart-title">Streaming Providers (all times Central Time)</h5>
     <div id="digitalChart" class="plotly-chart"></div>
   </div>
 
@@ -702,9 +704,11 @@ function cascadeFromConference() {
   if (!data || data.length === 0) {
     container.style.height = '120px';
     Plotly.newPlot(targetId, [], {
+      paper_bgcolor: 'rgba(0,0,0,0)',
+      plot_bgcolor: 'rgba(0,0,0,0)',
       title: {
         text: isDigital ? 'No streaming games matching selections.' : 'No network games matching selections.',
-        font: { size: 14 }
+        font: { size: 14, color: '#f3e5ab', family: 'Segoe UI, Arial, sans-serif' }
       },
       xaxis: { visible: false },
       yaxis: { visible: false },
@@ -744,12 +748,16 @@ function cascadeFromConference() {
         name: game.Matchup,
         marker: { 
           color: teamHexColor,
-          line: { color: '#ffffff', width: 1.5 }
+          // Thin gold border frame around team blocks to pop against dark background
+          line: { color: '#d4af37', width: 1.5 }
         },
         text: [game.Matchup],
         textposition: 'inside',
         insidetextanchor: 'middle',
-        insidetextfont: { family: 'Segoe UI, Arial, sans-serif' },
+        insidetextfont: { 
+          family: 'Segoe UI, Arial, sans-serif',
+          color: '#ffffff'
+        },
         hovertemplate:
           '<b>%{text}</b><br>' +
           'Network: ' + network + '<br>' +
@@ -773,6 +781,8 @@ function cascadeFromConference() {
 
   const layout = {
     height: calculatedPlotHeight, // Lock Plotly canvas height strictly to JS calculation
+    paper_bgcolor: 'rgba(0,0,0,0)', // Transparent canvas for dark card background
+    plot_bgcolor: 'rgba(0,0,0,0)',  // Transparent plot background
     barmode: 'stack',
     bargap: 0.15,                 
     autosize: true,
@@ -792,12 +802,12 @@ function cascadeFromConference() {
       tickvals: SHARED_X_AXIS_VALS,
       ticktext: SHARED_X_AXIS_TEXT,
       tickangle: -30,
-      tickfont: { family: 'Segoe UI, Arial, sans-serif', size: 10 },
+      tickfont: { family: 'Segoe UI, Arial, sans-serif', size: 10, color: '#f3e5ab' },
       ticks: 'outside',
       ticklen: 10,
       tickcolor: 'rgba(0,0,0,0)',
       showgrid: true,
-      gridcolor: '#e9ecef',
+      gridcolor: 'rgba(212, 175, 55, 0.15)', // Faint gold vertical time gridlines
       autorange: false,
       automargin: false
     },
@@ -811,7 +821,7 @@ function cascadeFromConference() {
       tickmode: 'array',
       tickvals: yTicks,
       ticktext: yTickLabels,
-      tickfont: { family: 'Segoe UI, Arial, sans-serif' },
+      tickfont: { family: 'Segoe UI, Arial, sans-serif', color: '#f3e5ab' },
       automargin: true
     },
     showlegend: false
