@@ -1,8 +1,15 @@
+/* ==========================================================================
+   CFPtheme1 - High-Gloss Metallic Gold & Dark Theme
+   ========================================================================== */
+
 /* Global Reset and Base Layout */
 html, body {
   height: 100%;
   margin: 0;
-  background-color: #f8f9fa;
+  /* Deep glossy dark background with subtle radial highlight */
+  background: radial-gradient(circle at 50% 20%, #1c1a17 0%, #0a0a09 70%, #000000 100%);
+  background-attachment: fixed;
+  color: #f8f6f0;
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
@@ -11,12 +18,24 @@ html, body {
   min-height: 100vh;
 }
 
+/* Shared Gold Metallic Border & Dark Panel Base Style 
+   Uses double background layering to support both border-radius AND metallic gradients */
+.filter-panel, 
+.chart-container {
+  border-radius: 14px;
+  border: 3px solid transparent;
+  background: 
+    linear-gradient(#161512, #0b0a09) padding-box, 
+    linear-gradient(135deg, #fff3a8 0%, #d4af37 25%, #aa7c11 50%, #f3e5ab 75%, #8a6d1b 100%) border-box;
+  box-shadow: 
+    0 0 18px rgba(212, 175, 55, 0.35),      /* Bright outer gold glow */
+    inset 0 1px 2px rgba(255, 243, 168, 0.4),/* Shiny top inner rim highlight */
+    0 10px 30px rgba(0, 0, 0, 0.95);         /* Deep drop shadow */
+}
+
 /* Sidebar Control Panel */
 .filter-panel {
-  background-color: #fff;
-  border-radius: 8px;
   padding: 1.25rem;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
   position: sticky;
   top: 1rem;
   z-index: 100;
@@ -25,14 +44,53 @@ html, body {
   overflow-y: auto;
 }
 
+/* Shiny Metallic Gold Headings (Sidebar & Chart Titles) */
+.filter-panel h1, 
+.filter-panel h2, 
+.filter-panel h3, 
+.filter-panel h4, 
+.filter-panel h5,
+.filter-panel label,
+.chart-container h1,
+.chart-container h2,
+.chart-container h3,
+.chart-container h4,
+.chart-container .chart-title {
+  background: linear-gradient(180deg, #fff7c2 0%, #d4af37 60%, #997a15 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+  display: inline-block;
+}
+
+/* Inputs, Select Dropdowns, and Checkboxes in Sidebar */
+.filter-panel .form-control,
+.filter-panel .form-select {
+  background-color: #0f0f0e;
+  color: #ffffff;
+  border: 2px solid #b89228;
+  border-radius: 6px;
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.8);
+}
+
+.filter-panel .form-control:focus,
+.filter-panel .form-select:focus {
+  background-color: #171614;
+  color: #ffffff;
+  border-color: #ffe680;
+  box-shadow: 0 0 10px rgba(255, 215, 0, 0.6);
+}
+
 /* Scrollable Checkbox Panel Styling */
 .checkbox-panel {
   max-height: 117.25px;
   overflow-y: auto;
-  background-color: #fff;
-  border: 1px solid #dee2e6;
+  background-color: #0d0c0b;
+  border: 2px solid #a6811e;
   border-radius: 0.375rem;
   padding: 0.5rem 0.75rem;
+  color: #f0f0f0;
 }
 
 .checkbox-panel .form-check {
@@ -43,19 +101,43 @@ html, body {
   margin-bottom: 0;
 }
 
+/* Custom Gold Styling for Checkboxes */
+.checkbox-panel .form-check-input {
+  background-color: #000000;
+  border: 1.5px solid #d4af37;
+}
+
+.checkbox-panel .form-check-input:checked {
+  background-color: #ffd700;
+  border-color: #fff3a8;
+  box-shadow: 0 0 6px rgba(255, 215, 0, 0.8);
+}
+
+/* Custom Shiny Gold Scrollbars */
+.filter-panel::-webkit-scrollbar,
+.checkbox-panel::-webkit-scrollbar {
+  width: 6px;
+}
+.filter-panel::-webkit-scrollbar-track,
+.checkbox-panel::-webkit-scrollbar-track {
+  background: #080808;
+}
+.filter-panel::-webkit-scrollbar-thumb,
+.checkbox-panel::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, #f3e5ab 0%, #a6811e 100%);
+  border-radius: 3px;
+}
+
 /* Column Parent for Charts */
 .charts-column {
   display: flex;
   flex-direction: column;
-  gap: 1.25rem; /* Gap for flex containers */
+  gap: 1.25rem;
 }
 
 /* Base Chart Card Containers */
 .chart-container {
-  background-color: #fff;
-  border-radius: 8px;
   padding: 1rem 1rem 0 1rem;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
   overflow: hidden;
   display: flex;
   flex-direction: column;
@@ -70,6 +152,15 @@ html, body {
   width: 100%;
 }
 
+/* Style Plotly text SVG nodes inside chart containers */
 .chart-container text {
-  font-family: 'Segoe UI', Tahoma, sans-serif;
+  font-family: 'Segoe UI', Tahoma, sans-serif !important;
+  fill: #f3e5ab !important; /* Parchment/Gold text color for tick labels and titles */
+}
+
+/* Ensure Plotly chart titles inherit gold color explicitly */
+.chart-container .gtitle,
+.chart-container .g-title {
+  fill: #f3e5ab !important;
+  font-weight: 600 !important;
 }
