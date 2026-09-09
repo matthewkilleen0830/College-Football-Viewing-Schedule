@@ -584,42 +584,45 @@ function cascadeFromConference() {
      * Evaluates all active control values and executes chart re-rendering.
      */
     function applyFilters() {
-      const selectedDate = DOM.dateFilter.value;
-      const selectedTime = DOM.timeFilter.value;
-      const selectedRanked = DOM.rankedFilter.value;
+  const selectedDate = DOM.dateFilter.value;
+  const selectedTime = DOM.timeFilter.value;
+  const selectedRanked = DOM.rankedFilter.value;
 
-      const checkedConferences = Array.from(
-        document.querySelectorAll("#conferenceFilter .conf-checkbox:checked")
-      ).map(cb => cb.value);
+  const allConfChecked = document.getElementById("conf_all")?.checked;
+  const checkedConferences = Array.from(
+    document.querySelectorAll("#conferenceFilter .conf-checkbox:checked")
+  ).map(cb => cb.value);
 
-      const checkedNetworks = Array.from(
-        document.querySelectorAll("#networkFilter .network-checkbox:checked")
-      ).map(cb => cb.value);
+  const checkedNetworks = Array.from(
+    document.querySelectorAll("#networkFilter .network-checkbox:checked")
+  ).map(cb => cb.value);
 
-      let filtered = window.gameData.filter(d => d.Date === selectedDate);
+  let filtered = window.gameData.filter(d => d.Date === selectedDate);
 
-      if (selectedTime && selectedTime !== "All") {
-        filtered = filtered.filter(d => d.Start_Time === selectedTime);
-      }
+  if (selectedTime && selectedTime !== "All") {
+    filtered = filtered.filter(d => d.Start_Time === selectedTime);
+  }
 
-      if (selectedRanked && selectedRanked === "Y") {
-        filtered = filtered.filter(d => d.Top_25 === "Y");
-      }
+  if (selectedRanked && selectedRanked === "Y") {
+    filtered = filtered.filter(d => d.Top_25 === "Y");
+  }
 
-      if (checkedConferences.length > 0) {
-        filtered = filtered.filter(d => 
-          checkedConferences.includes(d.Visitor_Conference) || checkedConferences.includes(d.Home_Conference)
-        );
-      }
+  // Filter by conference ONLY if "All Conferences" is unchecked and specific ones are selected
+  if (!allConfChecked) {
+    filtered = filtered.filter(d => 
+      checkedConferences.includes(d.Visitor_Conference?.trim()) || 
+      checkedConferences.includes(d.Home_Conference?.trim())
+    );
+  }
 
-      filtered = filtered.filter(d => checkedNetworks.includes(d.TV_Network));
+  filtered = filtered.filter(d => checkedNetworks.includes(d.TV_Network));
 
-      const primaryData = filtered.filter(d => !DIGITAL_NETWORKS.includes(d.TV_Network));
-      const digitalData = filtered.filter(d => DIGITAL_NETWORKS.includes(d.TV_Network));
+  const primaryData = filtered.filter(d => !DIGITAL_NETWORKS.includes(d.TV_Network));
+  const digitalData = filtered.filter(d => DIGITAL_NETWORKS.includes(d.TV_Network));
 
-      renderChart('barChart', primaryData, false);
-      renderChart('digitalChart', digitalData, true);
-    }
+  renderChart('barChart', primaryData, false);
+  renderChart('digitalChart', digitalData, true);
+}
 
     // =========================================================================
     // UTILITY HELPER FUNCTIONS
