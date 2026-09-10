@@ -64,6 +64,7 @@ html, body {
 /* Sidebar Control Panel */
 .filter-panel {
   padding: 1.25rem;
+  padding-right: 0.75rem;
   position: sticky;
   top: 1rem;
   z-index: 100;
@@ -157,6 +158,14 @@ html, body {
 .checkbox-panel::-webkit-scrollbar {
   width: 6px;
 }
+
+.filter-panel::-webkit-scrollbar-track {
+  background: transparent;
+  /* Recess the scrollbar top and bottom from the rounded corners */
+  margin-top: 12px; 
+  margin-bottom: 12px;
+}
+
 .filter-panel::-webkit-scrollbar-track,
 .checkbox-panel::-webkit-scrollbar-track {
   background: #080808;
