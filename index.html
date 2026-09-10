@@ -32,23 +32,23 @@
         <div class="filter-panel">
           <h5 class="mb-3">Week 2 Selections</h5>
 
-          <!-- Single-Select Date Slicer
-          <div class="mb-3">
-            <label for="dateFilter" class="form-label fw-semibold">Day/Date</label>
-            <select id="dateFilter" class="form-select"></select>
-          </div> -->
-
-<!-- Single-Select Ranked Matchup Filter (Adaptive to Date + Time) -->
-          <div class="mb-3">
-            <label for="rankedFilter" class="form-label fw-semibold">Ranked Teams</label>
-            <select id="rankedFilter" class="form-select"></select>
-          </div>
-
-<!-- Single-Select Date Slicer -->
+         <!-- Single-Select Date Slicer -->
           <div class="mb-3">
             <label for="dateFilter" class="form-label fw-semibold">Day/Date</label>
             <select id="dateFilter" class="form-select"></select>
           </div>
+
+<!-- Ranked Teams Toggle Checkbox -->
+<div class="mb-3 ranked-toggle-wrapper">
+  <div class="form-check d-flex align-items-center gap-2 ps-0">
+    <input class="form-check-input ms-0" type="checkbox" id="rankedFilter">
+    <label class="form-check-label fw-semibold mb-0" for="rankedFilter">
+      AP Top 25 Teams
+    </label>
+  </div>
+</div>
+
+
 
 
           <!-- Multiple-Select Kickoff Time Filter (Adaptive to Date) -->
@@ -247,58 +247,53 @@
       "Notre Dame": "#0C2340", "Jackson State": "#002147", "Prairie View A&M": "#330066", "UConn": "#000E2F"
     };
 
-    // Cached DOM Reference Element map for performance optimization
-    const DOM = {
-      dateFilter: document.getElementById("dateFilter"),
-      timeFilter: document.getElementById("timeFilter"),
-      rankedFilter: document.getElementById("rankedFilter"),
-      conferenceFilter: document.getElementById("conferenceFilter"),
-      networkFilter: document.getElementById("networkFilter")
-    };
+  // Cached DOM Reference Element map for performance optimization
+const DOM = {
+  dateFilter: document.getElementById("dateFilter"),
+  timeFilter: document.getElementById("timeFilter"),
+  rankedFilter: document.getElementById("rankedFilter"),
+  conferenceFilter: document.getElementById("conferenceFilter"),
+  networkFilter: document.getElementById("networkFilter")
+};
 
-    // =========================================================================
-    // DATA INITIALIZATION & EVENT LISTENERS
-    // =========================================================================
+// =========================================================================
+// DATA INITIALIZATION & EVENT LISTENERS
+// =========================================================================
 
-    // Loads CSV data, strips any UTF-8 BOM characters from column headers, and assigns the clean dataset to window.gameData
-    d3.csv("02_weekFull.csv", raw => {
-      // Clean Byte Order Mark (BOM) artifact from CSV headers if present
-      const clean = {};
-      Object.keys(raw).forEach(key => {
-        const normalizedKey = key.replace(/^\uFEFF/, "");
-        clean[normalizedKey] = raw[key];
-      });
-      return clean;
-    }).then(data => {
-      window.gameData = data;
+// Loads CSV data, strips any UTF-8 BOM characters from column headers, and assigns the clean dataset to window.gameData
+d3.csv("02_weekFull.csv", raw => {
+  // Clean Byte Order Mark (BOM) artifact from CSV headers if present
+  const clean = {};
+  Object.keys(raw).forEach(key => {
+    const normalizedKey = key.replace(/^\uFEFF/, "");
+    clean[normalizedKey] = raw[key];
+  });
+  return clean;
+}).then(data => {
+  window.gameData = data;
 
-      // Initialize Day/Date Slicer Options
-      const initialDate = getFirstAvailableDate(window.gameData);
-      updateDateSlicer(window.gameData, initialDate);
+  // Initialize Day/Date Slicer Options
+  const initialDate = getFirstAvailableDate(window.gameData);
+  updateDateSlicer(window.gameData, initialDate);
 
-      // Perform initial adaptive cascading setup and render
-      updateCascadingFilters();
-      applyFilters();
+  // Perform initial adaptive cascading setup and render
+  updateCascadingFilters();
+  applyFilters();
 
-      // Set up hierarchical cascading event listeners
-      DOM.dateFilter.addEventListener("change", () => {
-        updateCascadingFilters(1);
-        applyFilters();
-      });
+  // Set up hierarchical cascading event listeners
+  DOM.dateFilter.addEventListener("change", () => {
+    updateCascadingFilters(1);
+    applyFilters();
+  });
 
-      DOM.timeFilter.addEventListener("change", () => {
-        updateCascadingFilters(2); // Cascade down from Kickoff Time
-        applyFilters();
-      });
+  DOM.rankedFilter.addEventListener("change", () => {
+    updateCascadingFilters(3); // Cascade down from Ranked Teams toggle
+    applyFilters();
+  });
+});
 
-      DOM.rankedFilter.addEventListener("change", () => {
-        updateCascadingFilters(3); // Cascade down from Ranked Teams
-        applyFilters();
-      });
-    });
-
-    // =========================================================================
-// CASCADING SLICER ARCHITECTURE (With Multi-Select Time Checkboxes)
+// =========================================================================
+// CASCADING SLICER ARCHITECTURE (With Multi-Select Time & Checkbox Ranked)
 // =========================================================================
 
 // Extract and sort distinct dates chronologically
@@ -362,15 +357,13 @@ function updateCascadingFilters(startLevel = 1) {
     subset = subset.filter(d => activeTimeBoxes.includes(d.Start_Time));
   }
 
-  // Update Ranked Teams Slicer (adaptive to Date + Kickoff Times)
+  // Update Ranked Teams Checkbox State (adaptive to Date + Kickoff Times)
   if (startLevel <= 2) {
-    const currentRanked = DOM.rankedFilter.value;
-    updateRankedSlicer(subset, currentRanked);
+    updateRankedSlicer(subset, DOM.rankedFilter.checked);
   }
 
   // Filter subset by selected Ranked Status
-  const selectedRanked = DOM.rankedFilter.value;
-  if (selectedRanked && selectedRanked === "Y") {
+  if (DOM.rankedFilter.checked) {
     subset = subset.filter(d => d.Top_25 === "Y");
   }
 
@@ -478,8 +471,7 @@ function cascadeFromTime() {
   }
 
   // Preserve and update downstream filters (Ranked, Conference, Network)
-  const selectedRanked = DOM.rankedFilter.value;
-  if (selectedRanked && selectedRanked === "Y") {
+  if (DOM.rankedFilter.checked) {
     subset = subset.filter(d => d.Top_25 === "Y");
   }
 
@@ -496,16 +488,12 @@ function cascadeFromTime() {
   cascadeFromConference();
 }
 
-// Update Ranked Matches dropdown based on filtered availability
-function updateRankedSlicer(filteredData, selectedRanked) {
-  DOM.rankedFilter.innerHTML = `
-    <option value="All">All Games</option>
-    <option value="Y">AP Top 25</option>
-  `;
-
-  DOM.rankedFilter.value = (selectedRanked === "Y" || selectedRanked === "All") 
-    ? selectedRanked 
-    : "All";
+// Update Ranked Matches checkbox state and availability based on data
+function updateRankedSlicer(filteredData, wasChecked) {
+  const hasRankedGames = filteredData.some(d => d.Top_25 === "Y");
+  
+  DOM.rankedFilter.checked = wasChecked && hasRankedGames;
+  DOM.rankedFilter.disabled = !hasRankedGames;
 }
 
 // Dynamically construct individual conference checkboxes
@@ -579,8 +567,7 @@ function cascadeFromConference() {
     subset = subset.filter(d => activeTimeBoxes.includes(d.Start_Time));
   }
 
-  const selectedRanked = DOM.rankedFilter.value;
-  if (selectedRanked && selectedRanked === "Y") {
+  if (DOM.rankedFilter.checked) {
     subset = subset.filter(d => d.Top_25 === "Y");
   }
 
@@ -657,7 +644,6 @@ function updateNetworkSlicer(filteredData, selectedNetworks = []) {
 // Evaluate all active control values and execute chart re-rendering
 function applyFilters() {
   const selectedDate = DOM.dateFilter.value;
-  const selectedRanked = DOM.rankedFilter.value;
 
   const allTimeChecked = document.getElementById("time_all")?.checked;
   const checkedTimes = Array.from(
@@ -681,8 +667,8 @@ function applyFilters() {
     filtered = filtered.filter(d => checkedTimes.includes(d.Start_Time));
   }
 
-  // Filter by Ranked Status
-  if (selectedRanked && selectedRanked === "Y") {
+  // Filter by Ranked Teams Toggle
+  if (DOM.rankedFilter.checked) {
     filtered = filtered.filter(d => d.Top_25 === "Y");
   }
 
