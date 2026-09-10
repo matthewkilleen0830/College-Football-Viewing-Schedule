@@ -9,8 +9,11 @@ html, body {
   /* Deep glossy dark background with subtle radial highlight */
   background: radial-gradient(circle at 50% 20%, #1c1a17 0%, #0a0a09 70%, #000000 100%);
   background-attachment: fixed;
-  color: #f8f6f0;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  color: #f0f0f0;
+  /* color: #f8f6f0; */
+  /* font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; */
+  font-family: 'Arial Bold', 'Helvetica Neue Bold', Arial, Helvetica, sans-serif !important;
+  font-weight: 450 !important;
 }
 
 /* Ensure parent container allows scrolling */
@@ -31,6 +34,7 @@ html, body {
     0 0 18px rgba(212, 175, 55, 0.35),      /* Bright outer gold glow */
     inset 0 1px 2px rgba(255, 243, 168, 0.4),/* Shiny top inner rim highlight */
     0 10px 30px rgba(0, 0, 0, 0.95);         /* Deep drop shadow */
+    letter-spacing: -0.05em !important; /* Tightens text spacing (tight 'O' look) */
 }
 
 /* Sidebar Control Panel */
@@ -39,8 +43,9 @@ html, body {
   position: sticky;
   top: 1rem;
   z-index: 100;
-  height: fit-content; 
+  height: fit-content;
   max-height: calc(100vh - 2rem);
+  /* max-height: auto; */
   overflow-y: auto;
 }
 
@@ -50,7 +55,7 @@ html, body {
 .filter-panel h3, 
 .filter-panel h4, 
 .filter-panel h5,
-.filter-panel label,
+/* .filter-panel label, */
 .chart-container h1,
 .chart-container h2,
 .chart-container h3,
@@ -60,6 +65,16 @@ html, body {
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   font-weight: 600;
+  letter-spacing: 0.3px;
+  display: inline-block;
+}
+
+/* Slicer option labels */
+.filter-panel label {
+  background: linear-gradient(180deg, #fff7c2 0%, #d4af37 60%, #997a15 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  font-weight: 400;
   letter-spacing: 0.3px;
   display: inline-block;
 }
@@ -84,7 +99,7 @@ html, body {
 
 /* Scrollable Checkbox Panel Styling */
 .checkbox-panel {
-  max-height: 117.25px;
+  max-height: auto;
   overflow-y: auto;
   background-color: #0d0c0b;
   border: 2px solid #a6811e;
@@ -138,7 +153,7 @@ html, body {
 /* Base Chart Card Containers */
 .chart-container {
   padding: 1rem 1rem 0 1rem;
-  overflow: hidden;
+  overflow: auto;
   display: flex;
   flex-direction: column;
   width: calc(100% - 2rem);
