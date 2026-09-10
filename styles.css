@@ -85,7 +85,6 @@ html, body {
   top: 1rem;
   z-index: 100;
   height: fit-content;
-  /* max-height: calc(100vh - 2rem); */
   max-height: auto;
   width: 100%;
   overflow-y: auto;
@@ -121,7 +120,7 @@ html, body {
   display: inline-block;
 }
 
-/* Inputs, Select Dropdowns, and Checkboxes in Sidebar */
+/* Inputs and Select Dropdowns in Sidebar */
 .filter-panel .form-control,
 .filter-panel .form-select {
   background-color: #0f0f0e;
@@ -141,7 +140,6 @@ html, body {
 
 /* Scrollable Checkbox Panel Styling */
 .checkbox-panel {
-  max-height: auto;
   overflow-y: auto;
   background-color: #0d0c0b;
   border: 2px solid #a6811e;
@@ -160,16 +158,35 @@ html, body {
   margin-bottom: 0;
 }
 
-/* Custom Gold Styling for Checkboxes */
-.checkbox-panel .form-check-input {
-  background-color: #000000;
-  border: 1.5px solid #d4af37;
+/* Add to your CSS stylesheet */
+.ranked-toggle-wrapper {
+  padding-left: 0.75rem; /* Matches the inner horizontal padding of .checkbox-panel */
 }
 
-.checkbox-panel .form-check-input:checked {
+/* Global Custom Metallic Gold Checkboxes (Applies to both Panel and Standalone Toggle) */
+.form-check-input {
+  background-color: #000000;
+  border: 1.5px solid #d4af37;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.form-check-input:checked {
   background-color: #ffd700;
   border-color: #fff3a8;
   box-shadow: 0 0 6px rgba(255, 215, 0, 0.8);
+  /* Custom black checkmark icon matching the metallic theme */
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3e%3cpath fill='none' stroke='%23000' stroke-linecap='round' stroke-linejoin='round' stroke-width='3' d='m6 10 3 3 6-6'/%3e%3c/svg%3e");
+}
+
+.form-check-input:focus {
+  border-color: #ffe680;
+  outline: 0;
+  box-shadow: 0 0 8px rgba(255, 215, 0, 0.5);
+}
+
+.form-check-label {
+  cursor: pointer;
 }
 
 /* Custom Shiny Gold Scrollbars */
@@ -178,16 +195,20 @@ html, body {
   width: 6px;
 }
 
-.filter-panel::-webkit-scrollbar-track {
+/* .filter-panel::-webkit-scrollbar-track {
   background: transparent;
   margin-top: 12px; 
   margin-bottom: 12px;
-}
+} */
 
 .filter-panel::-webkit-scrollbar-track,
 .checkbox-panel::-webkit-scrollbar-track {
-  background: #080808;
+  /* background: #080808; */
+  background: transparent;
+  margin-top: 4px; 
+  margin-bottom: 4px;
 }
+
 .filter-panel::-webkit-scrollbar-thumb,
 .checkbox-panel::-webkit-scrollbar-thumb {
   background: linear-gradient(180deg, #f3e5ab 0%, #a6811e 100%);
@@ -224,20 +245,19 @@ html, body {
 }
 
 footer {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 6px;
-
-    text-align: center;
-    padding: 20px;
-    background: transparent;
-    color: #777;
-    margin-top: 40px;
-    font-family: Georgia, 'Times New Roman', serif;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 6px;
+  text-align: center;
+  padding: 20px;
+  background: transparent;
+  color: #777;
+  margin-top: 40px;
+  font-family: Georgia, 'Times New Roman', serif;
 }
 
 .tiny-icon {
-    width: 48px;
-    height: 48px;
+  width: 48px;
+  height: 48px;
 }
