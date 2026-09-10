@@ -6,23 +6,47 @@
 html, body {
   height: 100%;
   margin: 0;
-  /* Deep glossy dark background with subtle radial highlight */
   background: radial-gradient(circle at 50% 20%, #1c1a17 0%, #0a0a09 70%, #000000 100%);
   background-attachment: fixed;
   color: #f0f0f0;
-  /* color: #f8f6f0; */
-  /* font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; */
   font-family: 'Arial Bold', 'Helvetica Neue Bold', Arial, Helvetica, sans-serif !important;
   font-weight: 450 !important;
 }
 
-/* Ensure parent container allows scrolling */
+/* Ensure parent wrapper enforces strict flexbox alignment */
 .main-wrapper {
   min-height: 100vh;
 }
 
-/* Shared Gold Metallic Border & Dark Panel Base Style 
-   Uses double background layering to support both border-radius AND metallic gradients */
+.main-wrapper > .row {
+  display: flex !important;
+  flex-wrap: nowrap !important;
+  margin-right: 0 !important;
+  margin-left: 0 !important;
+}
+
+/* Bootstrap Column Overrides to strictly enforce 20vw / calc(100% - 20vw) */
+.main-wrapper > .row > .col-md-2 {
+  flex: 0 0 20vw !important;
+  max-width: 20vw !important;
+  width: 20vw !important;
+  padding-left: 0.5rem;
+  padding-right: 0.5rem;
+}
+
+.charts-column {
+  flex: 0 0 calc(100% - 20vw) !important;
+  max-width: calc(100% - 20vw) !important;
+  width: calc(100% - 20vw) !important;
+  min-width: 0 !important; /* CRITICAL: Allows nested Plotly SVG to shrink/grow within flex bounds */
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  padding-left: 0.5rem;
+  padding-right: 0.5rem;
+}
+
+/* Shared Gold Metallic Border & Dark Panel Base Style */
 .filter-panel, 
 .chart-container {
   border-radius: 14px;
@@ -31,10 +55,10 @@ html, body {
     linear-gradient(#161512, #0b0a09) padding-box, 
     linear-gradient(135deg, #fff3a8 0%, #d4af37 25%, #aa7c11 50%, #f3e5ab 75%, #8a6d1b 100%) border-box;
   box-shadow: 
-    0 0 18px rgba(212, 175, 55, 0.35),      /* Bright outer gold glow */
-    inset 0 1px 2px rgba(255, 243, 168, 0.4),/* Shiny top inner rim highlight */
-    0 10px 30px rgba(0, 0, 0, 0.95);         /* Deep drop shadow */
-    letter-spacing: -0.05em !important; /* Tightens text spacing (tight 'O' look) */
+    0 0 18px rgba(212, 175, 55, 0.35),
+    inset 0 1px 2px rgba(255, 243, 168, 0.4),
+    0 10px 30px rgba(0, 0, 0, 0.95);
+  letter-spacing: -0.05em !important;
 }
 
 /* Sidebar Control Panel */
@@ -45,18 +69,17 @@ html, body {
   z-index: 100;
   height: fit-content;
   max-height: calc(100vh - 2rem);
-  /* max-height: auto; */
-  /* min-width: 20vw; */
+  width: 100%;
   overflow-y: auto;
+  box-sizing: border-box;
 }
 
-/* Shiny Metallic Gold Headings (Sidebar & Chart Titles) */
+/* Shiny Metallic Gold Headings */
 .filter-panel h1, 
 .filter-panel h2, 
 .filter-panel h3, 
 .filter-panel h4, 
 .filter-panel h5,
-/* .filter-panel label, */
 .chart-container h1,
 .chart-container h2,
 .chart-container h3,
@@ -100,7 +123,7 @@ html, body {
 
 /* Scrollable Checkbox Panel Styling */
 .checkbox-panel {
-  max-height: auto;
+  max-height: 200px;
   overflow-y: auto;
   background-color: #0d0c0b;
   border: 2px solid #a6811e;
@@ -144,37 +167,29 @@ html, body {
   border-radius: 3px;
 }
 
-/* Column Parent for Charts */
-.charts-column {
-  display: flex;
-  flex-direction: column;
-  gap: 1.25rem;
-}
-
 /* Base Chart Card Containers */
 .chart-container {
-  padding: 1rem 1rem 0 1rem;
-  overflow: auto;
+  padding: 1rem 1rem 0.5rem 1rem;
+  overflow: hidden;
   display: flex;
   flex-direction: column;
-  width: calc(100% - 2rem);
-  margin-right: 2rem;
-  height: auto !important;
-  min-height: auto !important;
+  width: 100% !important;
+  margin-right: 0 !important;
+  box-sizing: border-box;
 }
 
 /* Plotly Canvas setup */
 .plotly-chart {
-  width: 100%;
+  width: 100% !important;
+  min-width: 0 !important;
 }
 
 /* Style Plotly text SVG nodes inside chart containers */
 .chart-container text {
   font-family: 'Segoe UI', Tahoma, sans-serif !important;
-  fill: #f3e5ab !important; /* Parchment/Gold text color for tick labels and titles */
+  fill: #f3e5ab !important;
 }
 
-/* Ensure Plotly chart titles inherit gold color explicitly */
 .chart-container .gtitle,
 .chart-container .g-title {
   fill: #f3e5ab !important;
