@@ -34,27 +34,57 @@ html, body {
   min-height: 100vh;
 }
 
-.main-wrapper > .row {
-  display: flex !important;
-  flex-wrap: nowrap !important;
-  align-items: stretch !important; /* Forces right column height to equal filter sidebar height */
-  margin-right: 0 !important;
-  margin-left: 0 !important;
+/* Desktop Alignment Rules */
+@media (min-width: 768px) {
+  .main-wrapper > .row {
+    display: flex !important;
+    flex-wrap: nowrap !important;
+    align-items: stretch !important; /* Forces right column height to equal filter sidebar height */
+    margin-right: 0 !important;
+    margin-left: 0 !important;
+  }
+
+  .main-wrapper > .row > .col-md-2 {
+    flex: 0 0 22vw !important;
+    max-width: 22vw !important;
+    width: 22vw !important;
+    padding-left: 0.5rem;
+    padding-right: 0.5rem;
+  }
+
+  .charts-column {
+    flex: 0 0 calc(100% - 22vw) !important;
+    max-width: calc(100% - 22vw) !important;
+    width: calc(100% - 22vw) !important;
+  }
 }
 
-/* Bootstrap Column Overrides to strictly enforce 22vw / calc(100% - 22vw) */
-.main-wrapper > .row > .col-md-2 {
-  flex: 0 0 22vw !important;
-  max-width: 22vw !important;
-  width: 22vw !important;
-  padding-left: 0.5rem;
-  padding-right: 0.5rem;
+/* Mobile & Portrait Viewport Overrides (Prevents Squeezing & Rotation) */
+@media (max-width: 767px) {
+  .main-wrapper > .row {
+    display: flex !important;
+    flex-direction: column !important;
+    margin-right: 0 !important;
+    margin-left: 0 !important;
+  }
+
+  .main-wrapper > .row > .col-md-2,
+  .charts-column {
+    flex: 0 0 100% !important;
+    max-width: 100% !important;
+    width: 100% !important;
+    padding-left: 0.5rem;
+    padding-right: 0.5rem;
+  }
+
+  .filter-panel {
+    position: relative !important;
+    top: 0 !important;
+    margin-bottom: 1rem;
+  }
 }
 
 .charts-column {
-  flex: 0 0 calc(100% - 22vw) !important;
-  max-width: calc(100% - 22vw) !important;
-  width: calc(100% - 22vw) !important;
   min-width: 0 !important; /* CRITICAL: Allows nested Plotly SVG to shrink/grow within flex bounds */
   display: flex;
   flex-direction: column;
@@ -82,11 +112,11 @@ html, body {
 .chart-container {
   padding: 1rem 1rem 0.5rem 1rem;
   overflow-y: auto;       /* Enables vertical scrolling when chart content overflows */
-  overflow-x: hidden;     /* Prevents horizontal scrollbars */
+  overflow-x: hidden;       /* Allows horizontal scrolling instead of rotating on tiny screens */
   display: flex;
   flex-direction: column;
-  flex: 1 0 auto;        /* Allows expansion relative to row stretch */
-  min-height: 280px;      /* Prevents collapsing while keeping baseline container size */
+  /* flex: 1 0 auto;        Allows expansion relative to row stretch */
+  /* min-height: 280px;      Prevents collapsing while keeping baseline container size */
   width: 100% !important;
   margin-right: 0 !important;
   box-sizing: border-box;
@@ -211,6 +241,7 @@ html, body {
 .checkbox-panel::-webkit-scrollbar,
 .chart-container::-webkit-scrollbar {
   width: 6px;
+  height: 6px;
 }
 
 .filter-panel::-webkit-scrollbar-track,
@@ -232,8 +263,14 @@ html, body {
 .plotly-chart {
   width: 100% !important;
   min-width: 0 !important;
-  height: auto !important; /* Allows container scrollbar to take over when SVG height exceeds bounds */
-  flex: 1;
+  /* height: auto !important; */
+  /* flex: 1; */
+  display: block;
+}
+
+/* Prevent SVG interactions from rotating/panning canvas elements */
+.plotly-chart .draglayer {
+  pointer-events: none !important;
 }
 
 /* Style Plotly text SVG nodes inside chart containers */
