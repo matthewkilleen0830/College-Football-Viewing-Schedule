@@ -722,6 +722,13 @@ function cascadeFromConference() {
       const yTicks = [];
       const yTickLabels = [];
 
+      // Helper to bold ranked teams (e.g., "#19 Washington" or "#12 Alabama")
+function formatMatchupText(text) {
+  if (!text) return '';
+  // Replaces "#12 Team Name" with "<b>#12 Team Name</b>"
+  return text.replace(/(#\d+\s+[\w\s.&'-]+?)(?=\s+at|\s+vs|$)/gi, '<b>$1</b>');
+}
+
       grouped.forEach((games, network) => {
         const { assignedGames, totalSubRows } = resolveOverlapSubRows(games);
 
@@ -736,8 +743,8 @@ function cascadeFromConference() {
           const end = timeToMinutes(game.End_Time);
           const duration = end >= start ? (end - start) : (end + 1440 - start);
           const teamHexColor = getHomeTeamColor(game.Matchup);
-
           const internalRowKey = `${network}_row_${game.subRowIndex}`;
+          const formattedLabel = formatMatchupText(game.Matchup);
 
           traces.push({
             type: 'bar',
@@ -751,7 +758,7 @@ function cascadeFromConference() {
               line: { color: '#d4af37', width: 1.5 },
               cornerradius: "45%"
             },
-            text: [game.Matchup],
+            text: [formattedLabel],
             textposition: 'inside',
             insidetextanchor: 'middle',
             insidetextfont: { 
