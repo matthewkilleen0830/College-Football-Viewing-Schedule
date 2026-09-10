@@ -34,57 +34,26 @@ html, body {
   min-height: 100vh;
 }
 
-/* Desktop Alignment Rules */
-@media (min-width: 768px) {
-  .main-wrapper > .row {
-    display: flex !important;
-    flex-wrap: nowrap !important;
-    align-items: stretch !important; /* Forces right column height to equal filter sidebar height */
-    margin-right: 0 !important;
-    margin-left: 0 !important;
-  }
-
-  .main-wrapper > .row > .col-md-2 {
-    flex: 0 0 22vw !important;
-    max-width: 22vw !important;
-    width: 22vw !important;
-    padding-left: 0.5rem;
-    padding-right: 0.5rem;
-  }
-
-  .charts-column {
-    flex: 0 0 calc(100% - 22vw) !important;
-    max-width: calc(100% - 22vw) !important;
-    width: calc(100% - 22vw) !important;
-  }
+.main-wrapper > .row {
+  display: flex !important;
+  flex-wrap: nowrap !important;
+  margin-right: 0 !important;
+  margin-left: 0 !important;
 }
 
-/* Mobile & Portrait Viewport Overrides (Prevents Squeezing & Rotation) */
-@media (max-width: 767px) {
-  .main-wrapper > .row {
-    display: flex !important;
-    flex-direction: column !important;
-    margin-right: 0 !important;
-    margin-left: 0 !important;
-  }
-
-  .main-wrapper > .row > .col-md-2,
-  .charts-column {
-    flex: 0 0 100% !important;
-    max-width: 100% !important;
-    width: 100% !important;
-    padding-left: 0.5rem;
-    padding-right: 0.5rem;
-  }
-
-  .filter-panel {
-    position: relative !important;
-    top: 0 !important;
-    margin-bottom: 1rem;
-  }
+/* Bootstrap Column Overrides to strictly enforce 20vw / calc(100% - 20vw) */
+.main-wrapper > .row > .col-md-2 {
+  flex: 0 0 22vw !important;
+  max-width: 22vw !important;
+  width: 22vw !important;
+  padding-left: 0.5rem;
+  padding-right: 0.5rem;
 }
 
 .charts-column {
+  flex: 0 0 calc(100% - 22vw) !important;
+  max-width: calc(100% - 22vw) !important;
+  width: calc(100% - 22vw) !important;
   min-width: 0 !important; /* CRITICAL: Allows nested Plotly SVG to shrink/grow within flex bounds */
   display: flex;
   flex-direction: column;
@@ -106,20 +75,6 @@ html, body {
     inset 0 1px 2px rgba(255, 243, 168, 0.4),
     0 10px 30px rgba(0, 0, 0, 0.95);
   letter-spacing: -0.05em !important;
-}
-
-/* Base Chart Card Containers */
-.chart-container {
-  padding: 1rem 1rem 0.5rem 1rem;
-  overflow-y: auto;       /* Enables vertical scrolling when chart content overflows */
-  overflow-x: hidden;       /* Allows horizontal scrolling instead of rotating on tiny screens */
-  display: flex;
-  flex-direction: column;
-  /* flex: 1 0 auto;        Allows expansion relative to row stretch */
-  /* min-height: 280px;      Prevents collapsing while keeping baseline container size */
-  width: 100% !important;
-  margin-right: 0 !important;
-  box-sizing: border-box;
 }
 
 /* Sidebar Control Panel */
@@ -203,11 +158,12 @@ html, body {
   margin-bottom: 0;
 }
 
+/* Add to your CSS stylesheet */
 .ranked-toggle-wrapper {
-  padding-left: 0.75rem; /* Matches inner horizontal padding of .checkbox-panel */
+  padding-left: 0.75rem; /* Matches the inner horizontal padding of .checkbox-panel */
 }
 
-/* Global Custom Metallic Gold Checkboxes */
+/* Global Custom Metallic Gold Checkboxes (Applies to both Panel and Standalone Toggle) */
 .form-check-input {
   background-color: #000000;
   border: 1.5px solid #d4af37;
@@ -222,7 +178,7 @@ html, body {
   background-color: #ffd700;
   border-color: #fff3a8;
   box-shadow: 0 0 6px rgba(255, 215, 0, 0.8);
-  /* Custom black checkmark icon matching metallic theme */
+  /* Custom black checkmark icon matching the metallic theme */
   background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3e%3cpath fill='none' stroke='%23000' stroke-linecap='round' stroke-linejoin='round' stroke-width='3' d='m6 10 3 3 6-6'/%3e%3c/svg%3e");
 }
 
@@ -236,41 +192,49 @@ html, body {
   cursor: pointer;
 }
 
-/* Custom Shiny Gold Scrollbars for Sidebar, Checkbox Panel, and Chart Containers */
+/* Custom Shiny Gold Scrollbars */
 .filter-panel::-webkit-scrollbar,
-.checkbox-panel::-webkit-scrollbar,
-.chart-container::-webkit-scrollbar {
+.checkbox-panel::-webkit-scrollbar {
   width: 6px;
-  height: 6px;
 }
 
+/* .filter-panel::-webkit-scrollbar-track {
+  background: transparent;
+  margin-top: 12px; 
+  margin-bottom: 12px;
+} */
+
 .filter-panel::-webkit-scrollbar-track,
-.checkbox-panel::-webkit-scrollbar-track,
-.chart-container::-webkit-scrollbar-track {
+.checkbox-panel::-webkit-scrollbar-track {
+  /* background: #080808; */
   background: transparent;
   margin-top: 4px; 
   margin-bottom: 4px;
 }
 
 .filter-panel::-webkit-scrollbar-thumb,
-.checkbox-panel::-webkit-scrollbar-thumb,
-.chart-container::-webkit-scrollbar-thumb {
+.checkbox-panel::-webkit-scrollbar-thumb {
   background: linear-gradient(180deg, #f3e5ab 0%, #a6811e 100%);
   border-radius: 3px;
+}
+
+/* Base Chart Card Containers */
+.chart-container {
+  padding: 1rem 1rem 0.5rem 1rem;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  flex: 1 0 auto;
+  min-height: 280px;
+  width: 100% !important;
+  margin-right: 0 !important;
+  box-sizing: border-box;
 }
 
 /* Plotly Canvas setup */
 .plotly-chart {
   width: 100% !important;
   min-width: 0 !important;
-  /* height: auto !important; */
-  /* flex: 1; */
-  display: block;
-}
-
-/* Prevent SVG interactions from rotating/panning canvas elements */
-.plotly-chart .draglayer {
-  pointer-events: none !important;
 }
 
 /* Style Plotly text SVG nodes inside chart containers */
