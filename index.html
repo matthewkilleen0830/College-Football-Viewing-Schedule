@@ -693,156 +693,157 @@ function cascadeFromConference() {
       return { assignedGames, totalSubRows: subRowEndTimes.length };
     }
 
-    // =========================================================================
+   // =========================================================================
     // CHART RENDER ENGINE (Plotly.js)
     // =========================================================================
 
     function renderChart(targetId, data, isDigital = false) {
-  const container = document.getElementById(targetId);
+      const container = document.getElementById(targetId);
 
-  // Empty / No Data Fallback
-  if (!data || data.length === 0) {
-    container.style.height = '120px';
-    Plotly.newPlot(targetId, [], {
-      paper_bgcolor: 'rgba(0,0,0,0)',
-      plot_bgcolor: 'rgba(0,0,0,0)',
-      title: {
-        text: isDigital ? 'No streaming games matching selections.' : 'No network games matching selections.',
-        font: { size: 16, color: '#f3e5ab', family: 'Segoe UI, Arial, sans-serif' }
-      },
-      xaxis: { visible: false },
-      yaxis: { visible: false },
-      showlegend: false
-    }, { responsive: true, displayModeBar: false });
-    return;
-  }
+      // Empty / No Data Fallback
+      if (!data || data.length === 0) {
+        container.style.height = '120px';
+        Plotly.newPlot(targetId, [], {
+          paper_bgcolor: 'rgba(0,0,0,0)',
+          plot_bgcolor: 'rgba(0,0,0,0)',
+          title: {
+            text: isDigital ? 'No streaming games matching selections.' : 'No network games matching selections.',
+            font: { size: 16, color: '#f3e5ab', family: 'Segoe UI, Arial, sans-serif' }
+          },
+          xaxis: { visible: false },
+          yaxis: { visible: false },
+          showlegend: false
+        }, { responsive: true, displayModeBar: false });
+        return;
+      }
 
-  const grouped = d3.group(data, d => d.TV_Network);
-  const traces = [];
-  const yTicks = [];
-  const yTickLabels = [];
+      const grouped = d3.group(data, d => d.TV_Network);
+      const traces = [];
+      const yTicks = [];
+      const yTickLabels = [];
 
-  grouped.forEach((games, network) => {
-    const { assignedGames, totalSubRows } = resolveOverlapSubRows(games);
+      grouped.forEach((games, network) => {
+        const { assignedGames, totalSubRows } = resolveOverlapSubRows(games);
 
-    for (let i = 0; i < totalSubRows; i++) {
-      const rowKey = `${network}_row_${i}`;
-      yTicks.push(rowKey);
-      yTickLabels.push(network);
-    }
+        for (let i = 0; i < totalSubRows; i++) {
+          const rowKey = `${network}_row_${i}`;
+          yTicks.push(rowKey);
+          yTickLabels.push(network);
+        }
 
-    assignedGames.forEach(game => {
-      const start = timeToMinutes(game.Start_Time);
-      const end = timeToMinutes(game.End_Time);
-      const duration = end >= start ? (end - start) : (end + 1440 - start);
-      const teamHexColor = getHomeTeamColor(game.Matchup);
+        assignedGames.forEach(game => {
+          const start = timeToMinutes(game.Start_Time);
+          const end = timeToMinutes(game.End_Time);
+          const duration = end >= start ? (end - start) : (end + 1440 - start);
+          const teamHexColor = getHomeTeamColor(game.Matchup);
 
-      const internalRowKey = `${network}_row_${game.subRowIndex}`;
+          const internalRowKey = `${network}_row_${game.subRowIndex}`;
 
-      traces.push({
-        type: 'bar',
-        orientation: 'h',
-        y: [internalRowKey],
-        x: [duration],
-        base: [start],
-        name: game.Matchup,
-        marker: { 
-          color: teamHexColor,
-          // Thin gold border frame around team blocks to pop against dark background
-          line: { color: '#d4af37', width: 1.5 }
-        },
-        text: [game.Matchup],
-        textposition: 'inside',
-        insidetextanchor: 'middle',
-        insidetextfont: { 
-          family: 'Segoe UI, Arial, sans-serif',
-          color: '#ffffff'
-        },
-        hovertemplate:
-          '<b>%{text}</b><br>' +
-          'Network: ' + network + '<br>' +
-          'Kickoff: %{customdata[0]}<br>' +
-          'End: %{customdata[1]}<extra></extra>',
-        customdata: [[game.Start_Time, game.End_Time]]
+          traces.push({
+            type: 'bar',
+            orientation: 'h',
+            y: [internalRowKey],
+            x: [duration],
+            base: [start],
+            name: game.Matchup,
+            marker: { 
+              color: teamHexColor,
+              line: { color: '#d4af37', width: 1.5 }
+            },
+            text: [game.Matchup],
+            textposition: 'inside',
+            insidetextanchor: 'middle',
+            insidetextfont: { 
+              family: 'Segoe UI, Arial, sans-serif',
+              color: '#ffffff'
+            },
+            hovertemplate:
+              '<b>%{text}</b><br>' +
+              'Network: ' + network + '<br>' +
+              'Kickoff: %{customdata[0]}<br>' +
+              'End: %{customdata[1]}<extra></extra>',
+            customdata: [[game.Start_Time, game.End_Time]]
+          });
+        });
       });
-    });
-  });
 
-  // Strict Row Height Math
-  const ROW_HEIGHT = 30; // Exact target height per bar/row
-  const TOP_AXIS_PADDING = 80; // Buffer space for top time axis and margins
-  const totalRows = yTicks.length;
-  
-  // Explicit plot height
-  const calculatedPlotHeight = (totalRows * ROW_HEIGHT) + TOP_AXIS_PADDING;
+      // Strict Row Height Math
+      const ROW_HEIGHT = 30; // Exact target height per bar/row
+      const TOP_AXIS_PADDING = 80; // Buffer space for top time axis and margins
+      const totalRows = yTicks.length;
+      
+      // Explicit plot height
+      const calculatedPlotHeight = (totalRows * ROW_HEIGHT) + TOP_AXIS_PADDING;
 
-  // Set height directly on the DOM wrapper element
-  container.style.height = `${calculatedPlotHeight}px`;
+      // Set height directly on DOM element
+      container.style.height = `${calculatedPlotHeight}px`;
 
-  const layout = {
-    height: calculatedPlotHeight, // Lock Plotly canvas height strictly to JS calculation
-    paper_bgcolor: 'rgba(0,0,0,0)', // Transparent canvas for dark card background
-    plot_bgcolor: 'rgba(0,0,0,0)',  // Transparent plot background
-    barmode: 'stack',
-    bargap: 0.15,                 
-    autosize: true,
-    margin: {
-      l: 100,
-      r: 20,
-      t: 60,
-      b: 10
-    },
-    dragmode: false,
-    xaxis: {
-      fixedrange: true,
-      side: 'top',
-      type: 'linear',
-      range: [660, 1500],
-      tickmode: 'array',
-      tickvals: SHARED_X_AXIS_VALS,
-      ticktext: SHARED_X_AXIS_TEXT,
-      tickangle: -30,
-      tickfont: { family: 'Segoe UI, Arial, sans-serif', size: 10, color: '#f3e5ab' },
-      ticks: 'outside',
-      ticklen: 10,
-      tickcolor: 'rgba(0,0,0,0)',
-      showgrid: true,
-      gridcolor: 'rgba(212, 175, 55, 0.15)', // Faint gold vertical time gridlines
-      autorange: false,
-      automargin: false
-    },
-    yaxis: {
-      fixedrange: true,
-      ticksuffix: '   ',
-      autorange: 'reversed',
-      ticks: 'outside',
-      ticklen: 8,
-      tickcolor: 'rgba(0,0,0,0)',
-      tickmode: 'array',
-      tickvals: yTicks,
-      ticktext: yTickLabels,
-      tickfont: { family: 'Segoe UI, Arial, sans-serif', color: '#f3e5ab' },
-      automargin: true
-    },
-    showlegend: false
-  };
+      const layout = {
+        height: calculatedPlotHeight,
+        paper_bgcolor: 'rgba(0,0,0,0)',
+        plot_bgcolor: 'rgba(0,0,0,0)',
+        barmode: 'stack',
+        bargap: 0.15,                 
+        autosize: true,
+        margin: {
+          l: 100,
+          r: 20,
+          t: 60,
+          b: 10
+        },
+        dragmode: false,
+        xaxis: {
+          fixedrange: true,
+          side: 'top',
+          type: 'linear',
+          range: [660, 1500],
+          tickmode: 'array',
+          tickvals: SHARED_X_AXIS_VALS,
+          ticktext: SHARED_X_AXIS_TEXT,
+          tickangle: -30,
+          tickfont: { family: 'Segoe UI, Arial, sans-serif', size: 10, color: '#f3e5ab' },
+          ticks: 'outside',
+          ticklen: 10,
+          tickcolor: 'rgba(0,0,0,0)',
+          showgrid: true,
+          gridcolor: 'rgba(212, 175, 55, 0.15)',
+          autorange: false,
+          automargin: false
+        },
+        yaxis: {
+          fixedrange: true,
+          ticksuffix: '   ',
+          autorange: 'reversed',
+          ticks: 'outside',
+          ticklen: 8,
+          tickcolor: 'rgba(0,0,0,0)',
+          tickmode: 'array',
+          tickvals: yTicks,
+          ticktext: yTickLabels,
+          tickfont: { family: 'Segoe UI, Arial, sans-serif', color: '#f3e5ab' },
+          automargin: true
+        },
+        showlegend: false
+      };
 
-  const config = { responsive: true, displayModeBar: false };
+      const config = { responsive: true, displayModeBar: false };
 
-  Plotly.newPlot(targetId, traces, layout, config);
-}
-
-    // Debounced window resize handler for fluid Plotly redrawing
-    let resizeTimer;
-    // Automatically redraw Plotly charts when the flex container resizes
-window.addEventListener('resize', function() {
-  const plotlyContainers = document.querySelectorAll('.plotly-chart');
-  plotlyContainers.forEach(container => {
-    if (window.Plotly) {
-      Plotly.Plots.resize(container);
+      Plotly.newPlot(targetId, traces, layout, config);
     }
-  });
-});;
+
+    // Properly debounced window resize handler for Plotly recalculations
+    let resizeTimer;
+    window.addEventListener('resize', function() {
+      clearTimeout(resizeTimer);
+      resizeTimer = setTimeout(() => {
+        const plotlyContainers = document.querySelectorAll('.plotly-chart');
+        plotlyContainers.forEach(container => {
+          if (window.Plotly && container.clientHeight > 0) {
+            Plotly.Plots.resize(container);
+          }
+        });
+      }, 100);
+    });;;
   </script>
 </body>
 </html>
