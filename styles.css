@@ -123,7 +123,7 @@ html, body {
 
 /* Scrollable Checkbox Panel Styling */
 .checkbox-panel {
-  max-height: 200px;
+  max-height: auto;
   overflow-y: auto;
   background-color: #0d0c0b;
   border: 2px solid #a6811e;
