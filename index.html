@@ -708,7 +708,7 @@ function cascadeFromConference() {
       plot_bgcolor: 'rgba(0,0,0,0)',
       title: {
         text: isDigital ? 'No streaming games matching selections.' : 'No network games matching selections.',
-        font: { size: 14, color: '#f3e5ab', family: 'Segoe UI, Arial, sans-serif' }
+        font: { size: 16, color: '#f3e5ab', family: 'Segoe UI, Arial, sans-serif' }
       },
       xaxis: { visible: false },
       yaxis: { visible: false },
@@ -834,13 +834,15 @@ function cascadeFromConference() {
 
     // Debounced window resize handler for fluid Plotly redrawing
     let resizeTimer;
-    window.addEventListener('resize', () => {
-      clearTimeout(resizeTimer);
-      resizeTimer = setTimeout(() => {
-        Plotly.Plots.resize('barChart');
-        Plotly.Plots.resize('digitalChart');
-      }, 100);
-    });
+    // Automatically redraw Plotly charts when the flex container resizes
+window.addEventListener('resize', function() {
+  const plotlyContainers = document.querySelectorAll('.plotly-chart');
+  plotlyContainers.forEach(container => {
+    if (window.Plotly) {
+      Plotly.Plots.resize(container);
+    }
+  });
+});;
   </script>
 </body>
 </html>
