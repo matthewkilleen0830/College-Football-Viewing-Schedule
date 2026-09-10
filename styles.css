@@ -27,17 +27,17 @@ html, body {
 
 /* Bootstrap Column Overrides to strictly enforce 20vw / calc(100% - 20vw) */
 .main-wrapper > .row > .col-md-2 {
-  flex: 0 0 25vw !important;
-  max-width: 25vw !important;
-  width: 25vw !important;
+  flex: 0 0 22vw !important;
+  max-width: 22vw !important;
+  width: 22vw !important;
   padding-left: 0.5rem;
   padding-right: 0.5rem;
 }
 
 .charts-column {
-  flex: 0 0 calc(100% - 25vw) !important;
-  max-width: calc(100% - 25vw) !important;
-  width: calc(100% - 25vw) !important;
+  flex: 0 0 calc(100% - 22vw) !important;
+  max-width: calc(100% - 22vw) !important;
+  width: calc(100% - 22vw) !important;
   min-width: 0 !important; /* CRITICAL: Allows nested Plotly SVG to shrink/grow within flex bounds */
   display: flex;
   flex-direction: column;
