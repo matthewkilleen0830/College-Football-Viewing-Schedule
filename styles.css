@@ -13,6 +13,22 @@ html, body {
   font-weight: 450 !important;
 }
 
+/* Header Banner Styling - Scaled and Padded to match grid alignment */
+.top-banner {
+  width: 100%;
+  padding-left: 0.5rem;  /* Matches lower column outer padding */
+  padding-right: 0.5rem; /* Matches lower column outer padding */
+  padding-bottom: 1.25rem;
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
+.top-banner img {
+  width: 100%;
+  height: auto;          /* Scaled proportionally */
+  display: block;        /* Prevents inline gaps underneath image */
+}
+
 /* Ensure parent wrapper enforces strict flexbox alignment */
 .main-wrapper {
   min-height: 100vh;
@@ -161,7 +177,6 @@ html, body {
 
 .filter-panel::-webkit-scrollbar-track {
   background: transparent;
-  /* Recess the scrollbar top and bottom from the rounded corners */
   margin-top: 12px; 
   margin-bottom: 12px;
 }
