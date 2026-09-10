@@ -861,11 +861,10 @@ function formatMatchupText(text) {
               color: '#ffffff'
             },
             hovertemplate:
-              '<b>%{text}</b><br>' +
-              'Network: ' + network + '<br>' +
-              'Kickoff: %{customdata[0]}<br>' +
-              'End: %{customdata[1]}<extra></extra>',
-            customdata: [[game.Start_Time, game.End_Time]]
+  '<b>%{text}</b><br>' +
+  'Network: ' + network + '<br>' +
+  'Scheduled Kickoff: %{customdata[0]}<extra></extra>',
+customdata: [[game.Start_Time]]
           });
         });
       });
@@ -948,5 +947,11 @@ function formatMatchupText(text) {
       }, 100);
     });;;
   </script>
+<!-- 
+<footer>
+    <p>© 2026 Matthew Killeen</p>
+    <img src="icon.png" class="tiny-icon">
+</footer> -->
+
 </body>
 </html>
