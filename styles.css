@@ -46,7 +46,7 @@ html, body {
   height: fit-content;
   max-height: calc(100vh - 2rem);
   /* max-height: auto; */
-  min-width: 20vh;
+  /* min-width: 20vw; */
   overflow-y: auto;
 }
 
