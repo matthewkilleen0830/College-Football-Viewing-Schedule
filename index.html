@@ -68,7 +68,7 @@
       <!-- Main Dashboard Visualization Display -->
       <div class="col-md-10 charts-column">
         
-        <!-- Primary Networks Chart Container -->
+        <!-- Traditional Networks Chart Container -->
         <div class="chart-container top-chart" id="networkChartContainer">
           <h5 class="mb-2 chart-title">College Football Viewing Guide (all times Central Time)</h5>
           <div id="barChart" class="plotly-chart"></div>
@@ -95,7 +95,7 @@
     // GLOBAL CONSTANTS & CONFIGURATION
     // =========================================================================
 
-    // List of networks classified as purely digital/streaming
+    // List of networks classified as streaming
     const DIGITAL_NETWORKS = ["ACCNX", "Peacock", "ESPN+", "MW+", "SECN+"];
 
     // Preferred Conference Display Priority
@@ -365,6 +365,7 @@
       }
     }
 
+    // Landing page to load on today or first upcoming day with games
     // Extract distinct dates chronologically and select today's date or the earliest upcoming date
     function getFirstAvailableDate(allData) {
       const now = new Date();
@@ -382,7 +383,7 @@
         // Strip out day-of-week abbreviations if present (e.g., "Fri, Sep 11" -> "Sep 11")
         let cleanStr = dateStr.replace(/^(Mon|Tue|Wed|Thu|Fri|Sat|Sun),?\s*/i, '');
 
-        // If string lacks a 4-digit year, append current year to avoid defaulting to 2001
+        // If string lacks a 4-digit year, append current year to avoid defaulting to 2001 (thanks to Y2K)
         if (!/\b20\d{2}\b/.test(cleanStr)) {
           cleanStr = `${cleanStr}, ${currentYear}`;
         }
@@ -804,5 +805,12 @@
       }, 100);
     });
   </script>
+
+<!-- Copyright Footer -->
+  <footer class="footer-copyright">
+    &copy; Matthew Killeen
+  </footer>
+</body>
+
 </body>
 </html>
