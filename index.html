@@ -20,7 +20,7 @@
   <!-- Application Layout -->
   <div class="container-fluid px-4 py-3 main-wrapper">
 
-<!-- Header Banner Image -->
+    <!-- Header Banner Image -->
     <header class="top-banner">
       <img src="headerBanner.png" alt="Header Banner for Dashboard">
     </header>
@@ -32,36 +32,27 @@
         <div class="filter-panel">
           <h5 class="mb-3">Week 2 Selections</h5>
 
-         <!-- Single-Select Date Slicer -->
+          <!-- Single-Select Date Slicer -->
           <div class="mb-3">
             <label for="dateFilter" class="form-label fw-semibold">Day/Date</label>
             <select id="dateFilter" class="form-select"></select>
           </div>
 
-<!-- Ranked Teams Toggle Checkbox -->
-<div class="mb-3 ranked-toggle-wrapper">
-  <div class="form-check d-flex align-items-center gap-2 ps-0">
-    <input class="form-check-input ms-0" type="checkbox" id="rankedFilter">
-    <label class="form-check-label fw-semibold mb-0" for="rankedFilter">
-      AP Top 25 Teams
-    </label>
-  </div>
-</div>
-
-
-
+          <!-- Ranked Teams Toggle Checkbox -->
+          <div class="mb-3 ranked-toggle-wrapper">
+            <div class="form-check d-flex align-items-center gap-2 ps-0">
+              <input class="form-check-input ms-0" type="checkbox" id="rankedFilter">
+              <label class="form-check-label fw-semibold mb-0" for="rankedFilter">
+                AP Top 25 Teams
+              </label>
+            </div>
+          </div>
 
           <!-- Multiple-Select Kickoff Time Filter (Adaptive to Date) -->
-<div class="mb-3">
-  <label for="timeFilter" class="form-label fw-semibold">Kickoff Time</label>
-  <div id="timeFilter" class="checkbox-panel"></div>
-</div>
-
-          <!-- Single-Select Ranked Matchup Filter (Adaptive to Date + Time)
           <div class="mb-3">
-            <label for="rankedFilter" class="form-label fw-semibold">Ranked Teams</label>
-            <select id="rankedFilter" class="form-select"></select>
-          </div> -->
+            <label for="timeFilter" class="form-label fw-semibold">Kickoff Time</label>
+            <div id="timeFilter" class="checkbox-panel"></div>
+          </div>
 
           <!-- Multi-Select Checkbox Conference Slicer (Adaptive to Date + Time + Ranked) -->
           <div class="mb-3">
@@ -71,33 +62,25 @@
             </div>
           </div>
 
-          <!-- Multi-Select Checkbox Network Slicer (Adaptive to Date + Time + Ranked + Conference) -->
-          <div class="mb-3">
-            <label class="form-label fw-semibold">Media Provider</label>
-            <div id="networkFilter" class="checkbox-panel">
-              <!-- Checkboxes dynamically rendered via JavaScript -->
-            </div>
-          </div>
-
         </div>
       </div>
 
       <!-- Main Dashboard Visualization Display -->
-<div class="col-md-10 charts-column">
-  
-  <!-- Primary Networks Chart Container -->
-  <div class="chart-container top-chart" id="networkChartContainer">
-    <h5 class="mb-2 chart-title">College Football Viewing Guide (all times Central Time)</h5>
-    <div id="barChart" class="plotly-chart"></div>
-  </div>
+      <div class="col-md-10 charts-column">
+        
+        <!-- Primary Networks Chart Container -->
+        <div class="chart-container top-chart" id="networkChartContainer">
+          <h5 class="mb-2 chart-title">College Football Viewing Guide (all times Central Time)</h5>
+          <div id="barChart" class="plotly-chart"></div>
+        </div>
 
-  <!-- Streaming Networks Chart Container -->
-  <div class="chart-container bottom-chart" id="digitalChartContainer">
-    <h5 class="mb-2 chart-title">Streaming Providers (all times Central Time)</h5>
-    <div id="digitalChart" class="plotly-chart"></div>
-  </div>
+        <!-- Streaming Networks Chart Container -->
+        <div class="chart-container bottom-chart" id="digitalChartContainer">
+          <h5 class="mb-2 chart-title">Streaming Providers (all times Central Time)</h5>
+          <div id="digitalChart" class="plotly-chart"></div>
+        </div>
 
-</div>
+      </div>
 
     </div>
   </div>
@@ -247,357 +230,289 @@
       "Notre Dame": "#0C2340", "Jackson State": "#002147", "Prairie View A&M": "#330066", "UConn": "#000E2F"
     };
 
-  // Cached DOM Reference Element map for performance optimization
-const DOM = {
-  dateFilter: document.getElementById("dateFilter"),
-  timeFilter: document.getElementById("timeFilter"),
-  rankedFilter: document.getElementById("rankedFilter"),
-  conferenceFilter: document.getElementById("conferenceFilter"),
-  networkFilter: document.getElementById("networkFilter")
-};
+    // Cached DOM Reference Element map for performance optimization
+    const DOM = {
+      dateFilter: document.getElementById("dateFilter"),
+      timeFilter: document.getElementById("timeFilter"),
+      rankedFilter: document.getElementById("rankedFilter"),
+      conferenceFilter: document.getElementById("conferenceFilter")
+    };
 
-// =========================================================================
-// DATA INITIALIZATION & EVENT LISTENERS
-// =========================================================================
+    // =========================================================================
+    // DATA INITIALIZATION & EVENT LISTENERS
+    // =========================================================================
 
-d3.csv("02_weekFull.csv", raw => {
-  const clean = {};
-  Object.keys(raw).forEach(key => {
-    const normalizedKey = key.replace(/^\uFEFF/, "");
-    clean[normalizedKey] = raw[key];
-  });
-  return clean;
-}).then(data => {
-  window.gameData = data;
+    d3.csv("02_weekFull.csv", raw => {
+      const clean = {};
+      Object.keys(raw).forEach(key => {
+        const normalizedKey = key.replace(/^\uFEFF/, "");
+        clean[normalizedKey] = raw[key];
+      });
+      return clean;
+    }).then(data => {
+      window.gameData = data;
 
-  // Initial render of all slicers & charts
-  const initialDate = getFirstAvailableDate(window.gameData);
-  updateDateSlicerOptions(window.gameData, initialDate);
-  
-  refreshAllSlicersExcept();
-  applyFilters();
-
-  // Primary Date Slicer Event Listener
-  DOM.dateFilter.addEventListener("change", () => {
-    refreshAllSlicersExcept("date");
-    applyFilters();
-  });
-
-  // Ranked Slicer Event Listener
-  DOM.rankedFilter.addEventListener("change", () => {
-    refreshAllSlicersExcept("ranked");
-    applyFilters();
-  });
-});
-
-// =========================================================================
-// BIDIRECTIONAL CROSS-FILTERING ARCHITECTURE
-// =========================================================================
-
-// Returns the active filter state across all slicers
-function getActiveSelections() {
-  const selectedDate = DOM.dateFilter ? DOM.dateFilter.value : null;
-  const isRankedOnly = DOM.rankedFilter ? DOM.rankedFilter.checked : false;
-
-  const timeAllChecked = document.getElementById("time_all")?.checked ?? true;
-  const selectedTimes = timeAllChecked ? [] : Array.from(
-    document.querySelectorAll("#timeFilter .time-checkbox:checked")
-  ).map(cb => cb.value);
-
-  const confAllChecked = document.getElementById("conf_all")?.checked ?? true;
-  const selectedConferences = confAllChecked ? [] : Array.from(
-    document.querySelectorAll("#conferenceFilter .conf-checkbox:checked")
-  ).map(cb => cb.value);
-
-  const netAllChecked = document.getElementById("net_all")?.checked ?? true;
-  const selectedNetworks = netAllChecked ? [] : Array.from(
-    document.querySelectorAll("#networkFilter .network-checkbox:checked")
-  ).map(cb => cb.value);
-
-  return {
-    date: selectedDate,
-    ranked: isRankedOnly,
-    times: selectedTimes,
-    isTimeAll: timeAllChecked,
-    conferences: selectedConferences,
-    isConfAll: confAllChecked,
-    networks: selectedNetworks,
-    isNetAll: netAllChecked
-  };
-}
-
-// Returns a subset of gameData filtered by all slicers EXCEPT the one specified by 'excludedFilter'
-function getFilteredDataExcept(excludedFilter = null) {
-  const state = getActiveSelections();
-
-  return window.gameData.filter(d => {
-    // Date filter
-    if (excludedFilter !== "date" && state.date && d.Date !== state.date) {
-      return false;
-    }
-    // Kickoff Time filter
-    if (excludedFilter !== "time" && !state.isTimeAll && state.times.length > 0) {
-      if (!state.times.includes(d.Start_Time)) return false;
-    }
-    // Ranked filter
-    if (excludedFilter !== "ranked" && state.ranked) {
-      if (d.Top_25 !== "Y") return false;
-    }
-    // Conference filter
-    if (excludedFilter !== "conference" && !state.isConfAll && state.conferences.length > 0) {
-      const vConf = d.Visitor_Conference?.trim();
-      const hConf = d.Home_Conference?.trim();
-      if (!state.conferences.includes(vConf) && !state.conferences.includes(hConf)) return false;
-    }
-    // Media Network filter
-    if (excludedFilter !== "network" && !state.isNetAll && state.networks.length > 0) {
-      if (!state.networks.includes(d.TV_Network)) return false;
-    }
-
-    return true;
-  });
-}
-
-// Re-computes available options for all slicers while preserving user selections where applicable
-function refreshAllSlicersExcept(targetSource = null) {
-  const currentState = getActiveSelections();
-
-  // 1. Refresh Time options based on all filters EXCEPT Time
-  if (targetSource !== "time") {
-    const timeSubset = getFilteredDataExcept("time");
-    updateTimeSlicer(timeSubset, currentState.times, currentState.isTimeAll);
-  }
-
-  // 2. Refresh Ranked checkbox toggle availability based on all filters EXCEPT Ranked
-  if (targetSource !== "ranked") {
-    const rankedSubset = getFilteredDataExcept("ranked");
-    updateRankedSlicer(rankedSubset, currentState.ranked);
-  }
-
-  // 3. Refresh Conference options based on all filters EXCEPT Conference
-  if (targetSource !== "conference") {
-    const confSubset = getFilteredDataExcept("conference");
-    updateConferenceSlicer(confSubset, currentState.conferences, currentState.isConfAll);
-  }
-
-  // 4. Refresh Media Provider options based on all filters EXCEPT Network
-  if (targetSource !== "network") {
-    const netSubset = getFilteredDataExcept("network");
-    updateNetworkSlicer(netSubset, currentState.networks, currentState.isNetAll);
-  }
-}
-
-// Extract and sort distinct dates chronologically
-function getFirstAvailableDate(allData) {
-  const uniqueDates = Array.from(new Set(allData.map(d => d.Date)))
-    .filter(Boolean)
-    .sort((a, b) => new Date(a) - new Date(b));
-  return uniqueDates[0] || null;
-}
-
-// Populate Date selection dropdown
-function updateDateSlicerOptions(allData, selectedDate) {
-  const uniqueDates = Array.from(new Set(allData.map(d => d.Date)))
-    .filter(Boolean)
-    .sort((a, b) => new Date(a) - new Date(b));
-
-  DOM.dateFilter.innerHTML = "";
-  uniqueDates.forEach(date => {
-    const opt = document.createElement("option");
-    opt.value = date;
-    opt.textContent = date;
-    DOM.dateFilter.appendChild(opt);
-  });
-
-  if (selectedDate && uniqueDates.includes(selectedDate)) {
-    DOM.dateFilter.value = selectedDate;
-  } else if (uniqueDates.length > 0) {
-    DOM.dateFilter.value = uniqueDates[0];
-  }
-}
-
-// Build multi-select Kickoff Time checkboxes dynamically
-function updateTimeSlicer(filteredData, selectedTimes = [], isAllChecked = true) {
-  const uniqueTimes = Array.from(new Set(filteredData.map(d => d.Start_Time)))
-    .filter(Boolean)
-    .sort((a, b) => timeToMinutes(a) - timeToMinutes(b));
-
-  DOM.timeFilter.innerHTML = "";
-
-  if (uniqueTimes.length === 0) {
-    DOM.timeFilter.innerHTML = `<div class="text-muted small p-1">No times available</div>`;
-    return;
-  }
-
-  // Master Toggle Element
-  const allDiv = document.createElement("div");
-  allDiv.className = "form-check border-bottom pb-1 mb-2";
-  allDiv.innerHTML = `
-    <input class="form-check-input" type="checkbox" id="time_all" ${isAllChecked ? 'checked' : ''}>
-    <label class="form-check-label fw-bold" for="time_all">All Times</label>
-  `;
-  DOM.timeFilter.appendChild(allDiv);
-
-  // Individual Time Checkboxes
-  uniqueTimes.forEach((time, idx) => {
-    const isChecked = isAllChecked || selectedTimes.includes(time);
-    const div = document.createElement("div");
-    div.className = "form-check";
-    div.innerHTML = `
-      <input class="form-check-input time-checkbox" type="checkbox" value="${time}" id="time_${idx}" ${isChecked ? 'checked' : ''}>
-      <label class="form-check-label" for="time_${idx}">${time}</label>
-    `;
-    DOM.timeFilter.appendChild(div);
-  });
-
-  // Attach Event Listeners
-  const allCheckbox = document.getElementById("time_all");
-  const itemCheckboxes = DOM.timeFilter.querySelectorAll(".time-checkbox");
-
-  allCheckbox.addEventListener("change", (e) => {
-    itemCheckboxes.forEach(cb => cb.checked = e.target.checked);
-    refreshAllSlicersExcept("time");
-    applyFilters();
-  });
-
-  itemCheckboxes.forEach(cb => {
-    cb.addEventListener("change", () => {
-      allCheckbox.checked = Array.from(itemCheckboxes).every(item => item.checked);
-      refreshAllSlicersExcept("time");
+      // Initial render of all slicers & charts
+      const initialDate = getFirstAvailableDate(window.gameData);
+      updateDateSlicerOptions(window.gameData, initialDate);
+      
+      refreshAllSlicersExcept();
       applyFilters();
+
+      // Primary Date Slicer Event Listener
+      DOM.dateFilter.addEventListener("change", () => {
+        refreshAllSlicersExcept("date");
+        applyFilters();
+      });
+
+      // Ranked Slicer Event Listener
+      DOM.rankedFilter.addEventListener("change", () => {
+        refreshAllSlicersExcept("ranked");
+        applyFilters();
+      });
     });
-  });
-}
 
-// Update Ranked Matches checkbox state & availability based on data context
-function updateRankedSlicer(filteredData, wasChecked) {
-  const hasRankedGames = filteredData.some(d => d.Top_25 === "Y");
-  
-  DOM.rankedFilter.checked = wasChecked && hasRankedGames;
-  DOM.rankedFilter.disabled = !hasRankedGames;
-}
+    // =========================================================================
+    // BIDIRECTIONAL CROSS-FILTERING ARCHITECTURE
+    // =========================================================================
 
-// Build individual conference checkboxes dynamically
-function updateConferenceSlicer(filteredData, selectedConferences = [], isAllChecked = true) {
-  const extractedConfs = new Set();
-  filteredData.forEach(d => {
-    if (d.Visitor_Conference) extractedConfs.add(d.Visitor_Conference.trim());
-    if (d.Home_Conference) extractedConfs.add(d.Home_Conference.trim());
-  });
+    // Returns the active filter state across all slicers
+    function getActiveSelections() {
+      const selectedDate = DOM.dateFilter ? DOM.dateFilter.value : null;
+      const isRankedOnly = DOM.rankedFilter ? DOM.rankedFilter.checked : false;
 
-  const uniqueConfs = Array.from(extractedConfs).filter(Boolean);
+      const timeAllChecked = document.getElementById("time_all")?.checked ?? true;
+      const selectedTimes = timeAllChecked ? [] : Array.from(
+        document.querySelectorAll("#timeFilter .time-checkbox:checked")
+      ).map(cb => cb.value);
 
-  const priorityConfs = PREFERRED_CONF_ORDER.filter(conf => uniqueConfs.includes(conf));
-  const remainingConfs = uniqueConfs
-    .filter(conf => !PREFERRED_CONF_ORDER.includes(conf))
-    .sort((a, b) => a.localeCompare(b));
+      const confAllChecked = document.getElementById("conf_all")?.checked ?? true;
+      const selectedConferences = confAllChecked ? [] : Array.from(
+        document.querySelectorAll("#conferenceFilter .conf-checkbox:checked")
+      ).map(cb => cb.value);
 
-  const orderedConfs = [...priorityConfs, ...remainingConfs];
+      return {
+        date: selectedDate,
+        ranked: isRankedOnly,
+        times: selectedTimes,
+        isTimeAll: timeAllChecked,
+        conferences: selectedConferences,
+        isConfAll: confAllChecked
+      };
+    }
 
-  DOM.conferenceFilter.innerHTML = "";
+    // Returns a subset of gameData filtered by all slicers EXCEPT the one specified by 'excludedFilter'
+    function getFilteredDataExcept(excludedFilter = null) {
+      const state = getActiveSelections();
 
-  if (orderedConfs.length === 0) {
-    DOM.conferenceFilter.innerHTML = `<div class="text-muted small p-1">No conferences available</div>`;
-    return;
-  }
+      return window.gameData.filter(d => {
+        // Date filter
+        if (excludedFilter !== "date" && state.date && d.Date !== state.date) {
+          return false;
+        }
+        // Kickoff Time filter
+        if (excludedFilter !== "time" && !state.isTimeAll && state.times.length > 0) {
+          if (!state.times.includes(d.Start_Time)) return false;
+        }
+        // Ranked filter
+        if (excludedFilter !== "ranked" && state.ranked) {
+          if (d.Top_25 !== "Y") return false;
+        }
+        // Conference filter
+        if (excludedFilter !== "conference" && !state.isConfAll && state.conferences.length > 0) {
+          const vConf = d.Visitor_Conference?.trim();
+          const hConf = d.Home_Conference?.trim();
+          if (!state.conferences.includes(vConf) && !state.conferences.includes(hConf)) return false;
+        }
 
-  const allDiv = document.createElement("div");
-  allDiv.className = "form-check border-bottom pb-1 mb-2";
-  allDiv.innerHTML = `
-    <input class="form-check-input" type="checkbox" id="conf_all" ${isAllChecked ? 'checked' : ''}>
-    <label class="form-check-label fw-bold" for="conf_all">All Conferences</label>
-  `;
-  DOM.conferenceFilter.appendChild(allDiv);
+        return true;
+      });
+    }
 
-  orderedConfs.forEach((conf, idx) => {
-    const isChecked = isAllChecked || selectedConferences.includes(conf);
-    const div = document.createElement("div");
-    div.className = "form-check";
-    div.innerHTML = `
-      <input class="form-check-input conf-checkbox" type="checkbox" value="${conf}" id="conf_${idx}" ${isChecked ? 'checked' : ''}>
-      <label class="form-check-label" for="conf_${idx}">${conf}</label>
-    `;
-    DOM.conferenceFilter.appendChild(div);
-  });
+    // Re-computes available options for all slicers while preserving user selections where applicable
+    function refreshAllSlicersExcept(targetSource = null) {
+      const currentState = getActiveSelections();
 
-  const allCheckbox = document.getElementById("conf_all");
-  const itemCheckboxes = DOM.conferenceFilter.querySelectorAll(".conf-checkbox");
+      // 1. Refresh Time options based on all filters EXCEPT Time
+      if (targetSource !== "time") {
+        const timeSubset = getFilteredDataExcept("time");
+        updateTimeSlicer(timeSubset, currentState.times, currentState.isTimeAll);
+      }
 
-  allCheckbox.addEventListener("change", (e) => {
-    itemCheckboxes.forEach(cb => cb.checked = e.target.checked);
-    refreshAllSlicersExcept("conference");
-    applyFilters();
-  });
+      // 2. Refresh Ranked checkbox toggle availability based on all filters EXCEPT Ranked
+      if (targetSource !== "ranked") {
+        const rankedSubset = getFilteredDataExcept("ranked");
+        updateRankedSlicer(rankedSubset, currentState.ranked);
+      }
 
-  itemCheckboxes.forEach(cb => {
-    cb.addEventListener("change", () => {
-      allCheckbox.checked = Array.from(itemCheckboxes).every(item => item.checked);
-      refreshAllSlicersExcept("conference");
-      applyFilters();
-    });
-  });
-}
+      // 3. Refresh Conference options based on all filters EXCEPT Conference
+      if (targetSource !== "conference") {
+        const confSubset = getFilteredDataExcept("conference");
+        updateConferenceSlicer(confSubset, currentState.conferences, currentState.isConfAll);
+      }
+    }
 
-// Build media provider checkboxes dynamically
-function updateNetworkSlicer(filteredData, selectedNetworks = [], isAllChecked = true) {
-  const uniqueNetworks = Array.from(new Set(filteredData.map(d => d.TV_Network)))
-    .filter(Boolean)
-    .sort();
-    
-  DOM.networkFilter.innerHTML = "";
+    // Extract and sort distinct dates chronologically
+    function getFirstAvailableDate(allData) {
+      const uniqueDates = Array.from(new Set(allData.map(d => d.Date)))
+        .filter(Boolean)
+        .sort((a, b) => new Date(a) - new Date(b));
+      return uniqueDates[0] || null;
+    }
 
-  if (uniqueNetworks.length === 0) {
-    DOM.networkFilter.innerHTML = `<div class="text-muted small p-1">No providers available</div>`;
-    return;
-  }
+    // Populate Date selection dropdown
+    function updateDateSlicerOptions(allData, selectedDate) {
+      const uniqueDates = Array.from(new Set(allData.map(d => d.Date)))
+        .filter(Boolean)
+        .sort((a, b) => new Date(a) - new Date(b));
 
-  const allDiv = document.createElement("div");
-  allDiv.className = "form-check border-bottom pb-1 mb-2";
-  allDiv.innerHTML = `
-    <input class="form-check-input" type="checkbox" id="net_all" ${isAllChecked ? 'checked' : ''}>
-    <label class="form-check-label fw-bold" for="net_all">All Providers</label>
-  `;
-  DOM.networkFilter.appendChild(allDiv);
+      DOM.dateFilter.innerHTML = "";
+      uniqueDates.forEach(date => {
+        const opt = document.createElement("option");
+        opt.value = date;
+        opt.textContent = date;
+        DOM.dateFilter.appendChild(opt);
+      });
 
-  uniqueNetworks.forEach((net, idx) => {
-    const isChecked = isAllChecked || selectedNetworks.includes(net);
-    const div = document.createElement("div");
-    div.className = "form-check";
-    div.innerHTML = `
-      <input class="form-check-input network-checkbox" type="checkbox" value="${net}" id="net_${idx}" ${isChecked ? 'checked' : ''}>
-      <label class="form-check-label" for="net_${idx}">${net}</label>
-    `;
-    DOM.networkFilter.appendChild(div);
-  });
+      if (selectedDate && uniqueDates.includes(selectedDate)) {
+        DOM.dateFilter.value = selectedDate;
+      } else if (uniqueDates.length > 0) {
+        DOM.dateFilter.value = uniqueDates[0];
+      }
+    }
 
-  const allCheckbox = document.getElementById("net_all");
-  const itemCheckboxes = DOM.networkFilter.querySelectorAll(".network-checkbox");
+    // Build multi-select Kickoff Time checkboxes dynamically
+    function updateTimeSlicer(filteredData, selectedTimes = [], isAllChecked = true) {
+      const uniqueTimes = Array.from(new Set(filteredData.map(d => d.Start_Time)))
+        .filter(Boolean)
+        .sort((a, b) => timeToMinutes(a) - timeToMinutes(b));
 
-  allCheckbox.addEventListener("change", (e) => {
-    itemCheckboxes.forEach(cb => cb.checked = e.target.checked);
-    refreshAllSlicersExcept("network");
-    applyFilters();
-  });
+      DOM.timeFilter.innerHTML = "";
 
-  itemCheckboxes.forEach(cb => {
-    cb.addEventListener("change", () => {
-      allCheckbox.checked = Array.from(itemCheckboxes).every(item => item.checked);
-      refreshAllSlicersExcept("network");
-      applyFilters();
-    });
-  });
-}
+      if (uniqueTimes.length === 0) {
+        DOM.timeFilter.innerHTML = `<div class="text-muted small p-1">No times available</div>`;
+        return;
+      }
 
-// Evaluate all active control selections and trigger chart re-rendering
-function applyFilters() {
-  const filtered = getFilteredDataExcept(null);
+      // Master Toggle Element
+      const allDiv = document.createElement("div");
+      allDiv.className = "form-check border-bottom pb-1 mb-2";
+      allDiv.innerHTML = `
+        <input class="form-check-input" type="checkbox" id="time_all" ${isAllChecked ? 'checked' : ''}>
+        <label class="form-check-label fw-bold" for="time_all">All Times</label>
+      `;
+      DOM.timeFilter.appendChild(allDiv);
 
-  const primaryData = filtered.filter(d => !DIGITAL_NETWORKS.includes(d.TV_Network));
-  const digitalData = filtered.filter(d => DIGITAL_NETWORKS.includes(d.TV_Network));
+      // Individual Time Checkboxes
+      uniqueTimes.forEach((time, idx) => {
+        const isChecked = isAllChecked || selectedTimes.includes(time);
+        const div = document.createElement("div");
+        div.className = "form-check";
+        div.innerHTML = `
+          <input class="form-check-input time-checkbox" type="checkbox" value="${time}" id="time_${idx}" ${isChecked ? 'checked' : ''}>
+          <label class="form-check-label" for="time_${idx}">${time}</label>
+        `;
+        DOM.timeFilter.appendChild(div);
+      });
 
-  renderChart('barChart', primaryData, false);
-  renderChart('digitalChart', digitalData, true);
-}
+      // Attach Event Listeners
+      const allCheckbox = document.getElementById("time_all");
+      const itemCheckboxes = DOM.timeFilter.querySelectorAll(".time-checkbox");
+
+      allCheckbox.addEventListener("change", (e) => {
+        itemCheckboxes.forEach(cb => cb.checked = e.target.checked);
+        refreshAllSlicersExcept("time");
+        applyFilters();
+      });
+
+      itemCheckboxes.forEach(cb => {
+        cb.addEventListener("change", () => {
+          allCheckbox.checked = Array.from(itemCheckboxes).every(item => item.checked);
+          refreshAllSlicersExcept("time");
+          applyFilters();
+        });
+      });
+    }
+
+    // Update Ranked Matches checkbox state & availability based on data context
+    function updateRankedSlicer(filteredData, wasChecked) {
+      const hasRankedGames = filteredData.some(d => d.Top_25 === "Y");
+      
+      DOM.rankedFilter.checked = wasChecked && hasRankedGames;
+      DOM.rankedFilter.disabled = !hasRankedGames;
+    }
+
+    // Build individual conference checkboxes dynamically
+    function updateConferenceSlicer(filteredData, selectedConferences = [], isAllChecked = true) {
+      const extractedConfs = new Set();
+      filteredData.forEach(d => {
+        if (d.Visitor_Conference) extractedConfs.add(d.Visitor_Conference.trim());
+        if (d.Home_Conference) extractedConfs.add(d.Home_Conference.trim());
+      });
+
+      const uniqueConfs = Array.from(extractedConfs).filter(Boolean);
+
+      const priorityConfs = PREFERRED_CONF_ORDER.filter(conf => uniqueConfs.includes(conf));
+      const remainingConfs = uniqueConfs
+        .filter(conf => !PREFERRED_CONF_ORDER.includes(conf))
+        .sort((a, b) => a.localeCompare(b));
+
+      const orderedConfs = [...priorityConfs, ...remainingConfs];
+
+      DOM.conferenceFilter.innerHTML = "";
+
+      if (orderedConfs.length === 0) {
+        DOM.conferenceFilter.innerHTML = `<div class="text-muted small p-1">No conferences available</div>`;
+        return;
+      }
+
+      const allDiv = document.createElement("div");
+      allDiv.className = "form-check border-bottom pb-1 mb-2";
+      allDiv.innerHTML = `
+        <input class="form-check-input" type="checkbox" id="conf_all" ${isAllChecked ? 'checked' : ''}>
+        <label class="form-check-label fw-bold" for="conf_all">All Conferences</label>
+      `;
+      DOM.conferenceFilter.appendChild(allDiv);
+
+      orderedConfs.forEach((conf, idx) => {
+        const isChecked = isAllChecked || selectedConferences.includes(conf);
+        const div = document.createElement("div");
+        div.className = "form-check";
+        div.innerHTML = `
+          <input class="form-check-input conf-checkbox" type="checkbox" value="${conf}" id="conf_${idx}" ${isChecked ? 'checked' : ''}>
+          <label class="form-check-label" for="conf_${idx}">${conf}</label>
+        `;
+        DOM.conferenceFilter.appendChild(div);
+      });
+
+      const allCheckbox = document.getElementById("conf_all");
+      const itemCheckboxes = DOM.conferenceFilter.querySelectorAll(".conf-checkbox");
+
+      allCheckbox.addEventListener("change", (e) => {
+        itemCheckboxes.forEach(cb => cb.checked = e.target.checked);
+        refreshAllSlicersExcept("conference");
+        applyFilters();
+      });
+
+      itemCheckboxes.forEach(cb => {
+        cb.addEventListener("change", () => {
+          allCheckbox.checked = Array.from(itemCheckboxes).every(item => item.checked);
+          refreshAllSlicersExcept("conference");
+          applyFilters();
+        });
+      });
+    }
+
+    // Evaluate all active control selections and trigger chart re-rendering
+    function applyFilters() {
+      const filtered = getFilteredDataExcept(null);
+
+      const primaryData = filtered.filter(d => !DIGITAL_NETWORKS.includes(d.TV_Network));
+      const digitalData = filtered.filter(d => DIGITAL_NETWORKS.includes(d.TV_Network));
+
+      renderChart('barChart', primaryData, false);
+      renderChart('digitalChart', digitalData, true);
+    }
 
     // =========================================================================
     // UTILITY HELPER FUNCTIONS
@@ -681,7 +596,7 @@ function applyFilters() {
       return { assignedGames, totalSubRows: subRowEndTimes.length };
     }
 
-   // =========================================================================
+    // =========================================================================
     // CHART RENDER ENGINE (Plotly.js)
     // =========================================================================
 
@@ -711,11 +626,11 @@ function applyFilters() {
       const yTickLabels = [];
 
       // Helper to bold ranked teams (e.g., "#19 Washington" or "#12 Alabama")
-function formatMatchupText(text) {
-  if (!text) return '';
-  // Replaces "#12 Team Name" with "<b>#12 Team Name</b>"
-  return text.replace(/(#\d+\s+[\w\s.&'-]+?)(?=\s+at|\s+vs|$)/gi, '<b>$1</b>');
-}
+      function formatMatchupText(text) {
+        if (!text) return '';
+        // Replaces "#12 Team Name" with "<b>#12 Team Name</b>"
+        return text.replace(/(#\d+\s+[\w\s.&'-]+?)(?=\s+at|\s+vs|$)/gi, '<b>$1</b>');
+      }
 
       grouped.forEach((games, network) => {
         const { assignedGames, totalSubRows } = resolveOverlapSubRows(games);
@@ -754,10 +669,10 @@ function formatMatchupText(text) {
               color: '#ffffff'
             },
             hovertemplate:
-  '<b>%{text}</b><br>' +
-  'Network: ' + network + '<br>' +
-  'Scheduled Kickoff: %{customdata[0]}<extra></extra>',
-customdata: [[game.Start_Time]]
+              '<b>%{text}</b><br>' +
+              'Network: ' + network + '<br>' +
+              'Scheduled Kickoff: %{customdata[0]}<extra></extra>',
+            customdata: [[game.Start_Time]]
           });
         });
       });
@@ -838,13 +753,7 @@ customdata: [[game.Start_Time]]
           }
         });
       }, 100);
-    });;;
+    });
   </script>
-<!-- 
-<footer>
-    <p>© 2026 Matthew Killeen</p>
-    <img src="icon.png" class="tiny-icon">
-</footer> -->
-
 </body>
 </html>
