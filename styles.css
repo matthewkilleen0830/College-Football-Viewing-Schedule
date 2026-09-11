@@ -225,7 +225,7 @@ html, body {
   display: flex;
   flex-direction: column;
   flex: 1 0 auto;
-  min-height: 280px;
+  min-height: 200px;
   width: 100% !important;
   margin-right: 0 !important;
   box-sizing: border-box;
