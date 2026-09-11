@@ -352,19 +352,57 @@
       }
     }
 
-    // Extract and sort distinct dates chronologically
+    // Extract distinct dates chronologically and select today's date or the earliest upcoming date
     function getFirstAvailableDate(allData) {
-      const uniqueDates = Array.from(new Set(allData.map(d => d.Date)))
-        .filter(Boolean)
-        .sort((a, b) => new Date(a) - new Date(b));
-      return uniqueDates[0] || null;
+      const now = new Date();
+      const currentYear = now.getFullYear();
+
+      // Start of today in local time
+      const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+
+      // Collect unique dates from CSV
+      const uniqueDates = Array.from(new Set(allData.map(d => d.Date))).filter(Boolean);
+
+      if (uniqueDates.length === 0) return null;
+
+      const parsedDates = uniqueDates.map(dateStr => {
+        // Strip out day-of-week abbreviations if present (e.g., "Fri, Sep 11" -> "Sep 11")
+        let cleanStr = dateStr.replace(/^(Mon|Tue|Wed|Thu|Fri|Sat|Sun),?\s*/i, '');
+
+        // If string lacks a 4-digit year, append current year to avoid defaulting to 2001
+        if (!/\b20\d{2}\b/.test(cleanStr)) {
+          cleanStr = `${cleanStr}, ${currentYear}`;
+        }
+
+        const parsed = new Date(cleanStr);
+        // Normalize time to midnight local time
+        const normalized = new Date(parsed.getFullYear(), parsed.getMonth(), parsed.getDate());
+
+        return { originalStr: dateStr, parsedDate: normalized };
+      });
+
+      // Sort chronologically
+      parsedDates.sort((a, b) => a.parsedDate - b.parsedDate);
+
+      // Find the first date in dataset that is >= startOfToday (includes today)
+      const upcoming = parsedDates.find(item => item.parsedDate.getTime() >= startOfToday.getTime());
+
+      // Return today/upcoming date if found; otherwise fallback to the latest date available
+      return upcoming ? upcoming.originalStr : parsedDates[parsedDates.length - 1].originalStr;
     }
 
     // Populate Date selection dropdown
     function updateDateSlicerOptions(allData, selectedDate) {
-      const uniqueDates = Array.from(new Set(allData.map(d => d.Date)))
-        .filter(Boolean)
-        .sort((a, b) => new Date(a) - new Date(b));
+      const uniqueDates = Array.from(new Set(allData.map(d => d.Date))).filter(Boolean);
+
+      const currentYear = new Date().getFullYear();
+      uniqueDates.sort((a, b) => {
+        let cleanA = a.replace(/^(Mon|Tue|Wed|Thu|Fri|Sat|Sun),?\s*/i, '');
+        let cleanB = b.replace(/^(Mon|Tue|Wed|Thu|Fri|Sat|Sun),?\s*/i, '');
+        if (!/\b20\d{2}\b/.test(cleanA)) cleanA = `${cleanA}, ${currentYear}`;
+        if (!/\b20\d{2}\b/.test(cleanB)) cleanB = `${cleanB}, ${currentYear}`;
+        return new Date(cleanA) - new Date(cleanB);
+      });
 
       DOM.dateFilter.innerHTML = "";
       uniqueDates.forEach(date => {
@@ -519,8 +557,6 @@
     // =========================================================================
 
     // Resolve the primary brand hex color for the home team by searching TEAM_COLORS for exact key matches
-    // @param {string} matchup - Full matchup string (e.g., "#1 Ohio State at Penn State (4-0)")
-    // @returns {string} Hex color string or default gray fallback (#D3D3D3)
     function getHomeTeamColor(matchup) {
       if (!matchup) return '#D3D3D3';
 
@@ -678,14 +714,12 @@
       });
 
       // Strict Row Height Math
-      const ROW_HEIGHT = 30; // Exact target height per bar/row
-      const TOP_AXIS_PADDING = 80; // Buffer space for top time axis and margins
+      const ROW_HEIGHT = 30;
+      const TOP_AXIS_PADDING = 80;
       const totalRows = yTicks.length;
       
-      // Explicit plot height
       const calculatedPlotHeight = (totalRows * ROW_HEIGHT) + TOP_AXIS_PADDING;
 
-      // Set height directly on DOM element
       container.style.height = `${calculatedPlotHeight}px`;
 
       const layout = {
@@ -741,7 +775,7 @@
       Plotly.newPlot(targetId, traces, layout, config);
     }
 
-    // Properly debounced window resize handler for Plotly recalculations
+    // Debounced window resize handler
     let resizeTimer;
     window.addEventListener('resize', function() {
       clearTimeout(resizeTimer);
