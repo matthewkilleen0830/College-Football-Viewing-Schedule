@@ -310,19 +310,32 @@
         if (excludedFilter !== "date" && state.date && d.Date !== state.date) {
           return false;
         }
+
         // Kickoff Time filter
-        if (excludedFilter !== "time" && !state.isTimeAll && state.times.length > 0) {
-          if (!state.times.includes(d.Start_Time)) return false;
+        if (excludedFilter !== "time") {
+          // If 'All Times' is unchecked and no individual time boxes are checked -> return no games
+          if (!state.isTimeAll && state.times.length === 0) return false;
+
+          // If specific times are selected, ensure game matches one of them
+          if (!state.isTimeAll && !state.times.includes(d.Start_Time)) return false;
         }
+
         // Ranked filter
         if (excludedFilter !== "ranked" && state.ranked) {
           if (d.Top_25 !== "Y") return false;
         }
+
         // Conference filter
-        if (excludedFilter !== "conference" && !state.isConfAll && state.conferences.length > 0) {
-          const vConf = d.Visitor_Conference?.trim();
-          const hConf = d.Home_Conference?.trim();
-          if (!state.conferences.includes(vConf) && !state.conferences.includes(hConf)) return false;
+        if (excludedFilter !== "conference") {
+          // If 'All Conferences' is unchecked and no individual conference boxes are checked -> return no games
+          if (!state.isConfAll && state.conferences.length === 0) return false;
+
+          // If specific conferences are selected, ensure game matches
+          if (!state.isConfAll) {
+            const vConf = d.Visitor_Conference?.trim();
+            const hConf = d.Home_Conference?.trim();
+            if (!state.conferences.includes(vConf) && !state.conferences.includes(hConf)) return false;
+          }
         }
 
         return true;
@@ -465,7 +478,8 @@
 
       itemCheckboxes.forEach(cb => {
         cb.addEventListener("change", () => {
-          allCheckbox.checked = Array.from(itemCheckboxes).every(item => item.checked);
+          allCheckbox.checked = Array.from(itemCheckboxes).length > 0 && 
+                               Array.from(itemCheckboxes).every(item => item.checked);
           refreshAllSlicersExcept("time");
           applyFilters();
         });
@@ -534,7 +548,8 @@
 
       itemCheckboxes.forEach(cb => {
         cb.addEventListener("change", () => {
-          allCheckbox.checked = Array.from(itemCheckboxes).every(item => item.checked);
+          allCheckbox.checked = Array.from(itemCheckboxes).length > 0 && 
+                               Array.from(itemCheckboxes).every(item => item.checked);
           refreshAllSlicersExcept("conference");
           applyFilters();
         });
