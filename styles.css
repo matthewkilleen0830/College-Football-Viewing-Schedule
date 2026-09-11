@@ -249,7 +249,7 @@ html, body {
   font-weight: 600 !important;
 }
 
-footer {
+/* footer {
   display: flex;
   justify-content: center;
   align-items: center;
@@ -260,6 +260,15 @@ footer {
   color: #777;
   margin-top: 40px;
   font-family: Georgia, 'Times New Roman', serif;
+} */
+
+.footer-copyright {
+  text-align: center;
+  font-size: 0.75rem;
+  color: rgba(255, 255, 255, 0.25); /* Washed-out light gray */
+  padding: 10px 0 5px 0;
+  font-family: 'Segoe UI', Arial, sans-serif;
+  user-select: none;
 }
 
 .tiny-icon {
