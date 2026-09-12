@@ -1,12 +1,12 @@
-# Road to the CFP: College Football Broadcast Dashboard 🏈
+# Road to the CFP: College Football Broadcast Dashboard
 
 An interactive, single-page web dashboard designed to simplify your weekly college football viewing experience each week. Built with **HTML5, CSS3, JavaScript (ES6+), Bootstrap 5**, and **Plotly.js**, this dashboard provides a sleek, dark-mode visual grid of all broadcast and streaming kickoff schedules with real-time dynamic filtering.
 
-![Road to the CFP Dashboard Banner](headerBanner.png)
+![Road to the CFP Dashboard Banner](images/headerBanner.png)
 
 ---
 
-## 🚀 Live Demo
+## Live Demo
 
 Check out the live interactive application hosted on GitHub Pages:
 👉 **[https://matthewkilleen0830.github.io/College-Football-Viewing-Schedule/](https://matthewkilleen0830.github.io/College-Football-Viewing-Schedule/)**
@@ -54,6 +54,10 @@ Check out the live interactive application hosted on GitHub Pages:
 ├── index.html          # Main HTML entry point with layout & SEO metadata
 ├── styles.css          # Custom Art Deco dark-theme styling & responsive rules
 ├── script.js          # Dynamic data fetching, filter logic, and Plotly chart rendering
-├── headerBanner.png    # Dashboard header banner and Open Graph preview image
-├── favicon.png         # Browser favicon icon
+├── currentWeek/        # Active schedule data directory
+│   └── 02_weekFull.csv # Weekly matchup dataset
+├── images/             # Visual asset directory
+│   ├── favicon.png     # Browser favicon icon
+│   ├── headerBanner.png# Dashboard header banner & Open Graph preview image
+│   └── icon.png        # Web app icon
 └── README.md           # Project documentation
