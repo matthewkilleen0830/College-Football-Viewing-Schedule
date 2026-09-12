@@ -293,7 +293,7 @@
     // DATA INITIALIZATION & EVENT LISTENERS
     // =========================================================================
 
-    d3.csv("02_weekFull.csv", raw => {
+    d3.csv("currentWeek/02_weekFull.csv", raw => {
       const clean = {};
       Object.keys(raw).forEach(key => {
         const normalizedKey = key.replace(/^\uFEFF/, "");
