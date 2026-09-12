@@ -17,14 +17,14 @@ Check out the live interactive application hosted on GitHub Pages:
 
 * **Dual Schedule Visualizations**:
   * **National Broadcast Networks**: Visual timeline tracking major linear networks (e.g., ABC, CBS, FOX, ESPN, SEC Network, Big Ten Network).
-  * **Streaming Providers**: Dedicated schedule tracking for digital-only streams (e.g., ESPN+, Peacock, Paramount+, B1G+).
+  * **Streaming Providers**: Dedicated schedule tracking for digital-only streams (e.g., ESPN+, Peacock, SECN+, ACCNX).
 * **Interactive Slicers & Adaptive Filters**:
   * **Day / Date Selection**: Instant focus on specific game days.
-  * **AP Top 25 Toggle**: One-click filter to highlight high-stakes ranked matchups.
+  * **Top 25 Toggle**: One-click filter to highlight AP/CFP ranked matchups.
   * **Kickoff Time Slicer**: Dynamic multi-select filter adapting to available kickoff slots for selected days.
-  * **Conference Slicer**: Multi-select conference filter (SEC, Big Ten, Big 12, ACC, etc.) that adaptively updates based on active date, time, and ranking constraints.
+  * **Conference Slicer**: Multi-select conference filter (SEC, Big Ten, Big XII, ACC, etc.) that dynamically updates based on active date, time, and ranking constraints.
 * **Art Deco Dark Theme**:
-  * Clean, polished, custom CSS UI tailored for late-night viewing.
+  * Clean, polished, custom CSS UI tailored for dark mode.
   * Custom team color branding and high-contrast timeline bars for seamless visual scanning.
 * **Full Analytics Integration**:
   * Integrated **Google Analytics 4 (GA4)** for tracking real-time user activity, slicer interactions, and device metrics.
