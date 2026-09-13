@@ -53,9 +53,9 @@ Check out the live interactive application hosted on GitHub Pages:
 ```text
 ├── index.html          # Main HTML entry point with layout & SEO metadata
 ├── styles.css          # Custom Art Deco dark-theme styling & responsive rules
-├── script.js          # Dynamic data fetching, filter logic, and Plotly chart rendering
+├── script.js           # Dynamic data fetching, filter logic, and Plotly chart rendering
 ├── currentWeek/        # Active schedule data directory
-│   └── 02_weekFull.csv # Weekly matchup dataset
+│   └── XX_weekFull.csv # Weekly matchup dataset
 ├── images/             # Visual asset directory
 │   ├── favicon.png     # Browser favicon icon
 │   ├── headerBanner.png# Dashboard header banner & Open Graph preview image
