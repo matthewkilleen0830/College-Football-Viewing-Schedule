@@ -91,6 +91,18 @@ html, body {
   box-sizing: border-box;
 }
 
+/* Sticky Sidebar for Desktop Viewports */
+@media (min-width: 768px) {
+  .filter-panel, 
+  .col-md-2 { /* Update to match your left column's exact CSS selector */
+    position: -webkit-sticky;
+    position: sticky;
+    top: 1rem;            /* Distance from top of viewport when scrolling */
+    align-self: flex-start; /* Crucial for Bootstrap flex rows */
+    z-index: 100;
+  }
+}
+
 /* Shiny Metallic Gold Headings */
 .filter-panel h1, 
 .filter-panel h2, 
