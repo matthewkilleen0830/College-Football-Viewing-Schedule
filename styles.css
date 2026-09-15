@@ -130,6 +130,7 @@ html, body {
   font-weight: 400;
   letter-spacing: 0.3px;
   display: inline-block;
+  margin-bottom: 0.25rem;
 }
 
 /* Inputs and Select Dropdowns in Sidebar */
