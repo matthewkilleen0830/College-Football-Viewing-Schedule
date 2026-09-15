@@ -18,7 +18,7 @@ html, body {
   width: 100%;
   padding-left: 0.5rem;  /* Matches lower column outer padding */
   padding-right: 0.5rem; /* Matches lower column outer padding */
-  padding-bottom: 1.25rem;
+  padding-bottom: 1rem;
   box-sizing: border-box;
   overflow: hidden;
 }
