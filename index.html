@@ -7,19 +7,8 @@
   <link rel="icon" type="image/x-icon" href="images/favicon.png">
   <meta charset="UTF-8">
   <meta name="color-scheme" content="dark">
-  <!-- <meta name="viewport" content="width=device-width, initial-scale=1.0"> -->
-  <!-- <meta name="viewport" content="width=device-width> -->
 
-  <!-- Primary SEO Meta Tags -->
-  <!-- <title>Road to the CFP: Broadcast Dashboard</title>
-  <!-- <meta name="title" content="Road to the CFP: Broadcast Dashboard"> -->
-  <!-- <meta name="description" content="Interactive weekly college football viewing schedule. Filter broadcast and streaming games by kickoff time, Top 25 rankings, and conferences."> -->
-  <!-- <meta name="keywords" content="College Football, College Football Schedule, NCAA Football Schedule, CFB Viewing Schedule, College Football TV Listings, College Gameday, Viewing Guide, Linear TV Schedule, TV Schedule, Ranked Matchups, CFP Rankings, AP Top 25, Streaming Games, SEC, Big Ten, Big 12, ACC"> -->
-  <!-- <meta name="author" content="Matt Killeen"> -->
-  <!-- <meta name="robots" content="index, follow"> -->
-  <!-- <link rel="canonical" href="https://matthewkilleen0830.github.io/College-Football-Viewing-Schedule/"> -->
-
- <!-- =========================================================
+  <!-- =========================================================
      PRIMARY SEO / SEARCH ENGINE METADATA
      ========================================================= -->
 
@@ -48,7 +37,7 @@
 
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="College Football TV Schedule & Viewing Guide | Road to the CFP">
-<meta name="twitter:description" content="Interactive weekly college football TV and streaming schedule with kickoff times, ranked matchups, Top 25 teams, networks, and conference filters.">
+<meta name="twitter:description" content="Interactive weekly college football TV and streaming schedule with kickoff times, ranked matchups, AP Top 25 teams, networks, and conference filters.">
 <meta name="twitter:image" content="https://matthewkilleen0830.github.io/College-Football-Viewing-Schedule/images/college-football-viewing-guide.jpg">
 <meta name="twitter:image:alt" content="College football TV schedule and viewing guide dashboard">
 
@@ -81,40 +70,12 @@
   "browserRequirements": "Requires JavaScript",
   "author": {
     "@type": "Person",
-    "name": "Matt Killeen",
+    "name": "Matthew Killeen",
     "url": "https://matthewkilleen0830.github.io/resume/"
   },
   "isAccessibleForFree": true
 }
 </script>
-  
-  <!-- Open Graph / Facebook / LinkedIn / iMessage Link Previews -->
-  <!-- <meta property="og:type" content="website"> -->
-  <!-- <meta property="og:url" content="https://matthewkilleen0830.github.io/College-Football-Viewing-Schedule/"> -->
-  <!-- <meta property="og:title" content="Road to the CFP: Broadcast Dashboard"> -->
-  <!-- <meta property="og:description" content="Interactive weekly TV and streaming schedule for college football games with live conference and kickoff filtering."> -->
-  <!-- <meta property="og:image" content="https://matthewkilleen0830.github.io/College-Football-Viewing-Schedule/images/headerBanner.png"> -->
-
-  <!-- Twitter / X Link Previews -->
-  <!-- <meta property="twitter:card" content="summary_large_image"> -->
-  <!-- <meta property="twitter:url" content="https://matthewkilleen0830.github.io/College-Football-Viewing-Schedule/"> -->
-  <!-- <meta property="twitter:title" content="Road to the CFP: Broadcast Dashboard"> -->
-  <!-- <meta property="twitter:description" content="Interactive weekly TV and streaming schedule for college football games with live conference and kickoff filtering."> -->
-  <!-- <meta property="twitter:image" content="https://matthewkilleen0830.github.io/College-Football-Viewing-Schedule/images/headerBanner.png"> -->
-
-  <!-- Schema.org Structured Data (JSON-LD) for Search Crawlers -->
-  <!-- <script type="application/ld+json"> -->
-  <!-- { -->
-    <!-- "@context": "https://schema.org", -->
-    <!-- "@type": "WebApplication", -->
-    <!-- "name": "Road to the CFP: Broadcast Dashboard", -->
-    <!-- "url": "https://matthewkilleen0830.github.io/College-Football-Viewing-Schedule/", -->
-    <!-- "description": "An interactive dashboard for tracking weekly college football broadcasts and streaming schedules.", -->
-    <!-- "applicationCategory": "SportsApplication", -->
-    <!-- "genre": "Sports", -->
-    <!-- "browserRequirements": "Requires JavaScript" -->
-  <!-- } -->
-  <!-- </script> -->
 
   <!-- Google tag (gtag.js) -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-WFCWTT0W0R"></script>
@@ -147,7 +108,7 @@
       <!-- Slicer Selection Controls Section -->
       <div class="col-md-2 align-self-start">
         <div class="filter-panel">
-          <h5 class="mb-3">Week 3 Selections</h5>
+          <h5 class="mb-3">Week 4 Selections</h5>
 
           <!-- Single-Select Date Slicer -->
           <div class="mb-3">
@@ -264,7 +225,7 @@
       "Arizona": "#CC0003", "Arizona State": "#8C1D40", "Baylor": "#154734", "BYU": "#0062B8",
       "Cincinnati": "#000000", "Colorado": "#CFB87C", "Houston": "#C8102E", "Iowa State": "#C8102E",
       "Kansas": "#0051BA", "Kansas State": "#512888", "Oklahoma State": "#FE5C00", "TCU": "#4D1979",
-      "Texas Tech": "#000000", "UCF": "#BA9B37", "Utah": "#CC0000", "West Virginia": "#002855",
+      "Texas Tech": "#C30020", "UCF": "#BA9B37", "Utah": "#CC0000", "West Virginia": "#002855",
 
       // MAC
       "Akron": "#041E42", "Ball State": "#BA0C2F", "Bowling Green": "#4F2C1D", "Buffalo": "#005BBB",
@@ -361,7 +322,7 @@
     // DATA INITIALIZATION & EVENT LISTENERS
     // =========================================================================
 
-    d3.csv("currentWeek/03_weekFull.csv", raw => {
+    d3.csv("currentWeek/04_weekFull.csv", raw => {
       const clean = {};
       Object.keys(raw).forEach(key => {
         const normalizedKey = key.replace(/^\uFEFF/, "");
@@ -502,7 +463,7 @@
         // Strip out day-of-week abbreviations if present (e.g., "Fri, Sep 11" -> "Sep 11")
         let cleanStr = dateStr.replace(/^(Mon|Tue|Wed|Thu|Fri|Sat|Sun),?\s*/i, '');
 
-        // If string lacks a 4-digit year, append current year to avoid defaulting to 2001 (thanks to Y2K)
+        // If string lacks a 4-digit year, append current year to avoid defaulting to 2001
         if (!/\b20\d{2}\b/.test(cleanStr)) {
           cleanStr = `${cleanStr}, ${currentYear}`;
         }
@@ -849,8 +810,8 @@
               },
             bgcolor: teamHexColor,    // Dark background matching your theme
             // bordercolor: '#00d4ff'
-            },
-            
+            },       
+
             hovertemplate:
               '<b>%{text}</b><br>' +
               'Broadcast Outlet: ' + network + '<br>' +
@@ -887,6 +848,7 @@
           fixedrange: true,
           side: 'top',
           type: 'linear',
+          // range: [660, 1500],
           range: [630, 1530],
           tickmode: 'array',
           tickvals: SHARED_X_AXIS_VALS,
@@ -903,7 +865,7 @@
         },
         yaxis: {
           fixedrange: true,
-          ticksuffix: '   ',
+          ticksuffix: '',
           autorange: 'reversed',
           ticks: 'outside',
           ticklen: 8,
