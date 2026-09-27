@@ -3,14 +3,14 @@
 "Thu, Oct 01",North Texas at Tulsa,ESPN,8:00 PM,11:30 PM,N,AAC,AAC
 "Fri, Oct 02",Pitt at Virginia Tech,ESPN,6:00 PM,9:30 PM,N,ACC,ACC
 "Fri, Oct 02",Liberty at Delaware,CBSSN,6:00 PM,9:30 PM,N,Conference USA,Conference USA
-"Fri, Oct 02",#13 Penn State at Northwestern,FOX,7:00 PM,10:30 PM,Y,Big Ten,Big Ten
+"Fri, Oct 02",Penn State at Northwestern,FOX,7:00 PM,10:30 PM,N,Big Ten,Big Ten
 "Sat, Oct 03",Vanderbilt at #2 Georgia,SEC Network,11:45 AM,3:15 PM,Y,SEC,SEC
 "Sat, Oct 03",#3 Notre Dame at North Carolina,ESPN,11:00 AM,2:30 PM,Y,Independents,ACC
-"Sat, Oct 03",#6 Miami at Clemson,ABC,6:30 PM,10:00 PM,Y,ACC,ACC
-"Sat, Oct 03",#8 Alabama at #24 Mississippi State,ABC,11:00 AM,2:30 PM,Y,SEC,SEC
-"Sat, Oct 03",#18 Michigan at Minnesota,FOX,11:00 AM,2:30 PM,Y,Big Ten,Big Ten
-"Sat, Oct 03",Boston College at #22 SMU,CW,11:00 AM,2:30 PM,Y,ACC,ACC
-"Sat, Oct 03",UCF at #25 Houston,ESPN,11:00 AM,2:30 PM,Y,Big XII,Big XII
+"Sat, Oct 03",#4 Miami at Clemson,ABC,6:30 PM,10:00 PM,Y,ACC,ACC
+"Sat, Oct 03",#7 Alabama at #16 Mississippi State,ABC,11:00 AM,2:30 PM,Y,SEC,SEC
+"Sat, Oct 03",Michigan at Minnesota,FOX,11:00 AM,2:30 PM,N,Big Ten,Big Ten
+"Sat, Oct 03",Boston College at #21 SMU,CW,11:00 AM,2:30 PM,Y,ACC,ACC
+"Sat, Oct 03",UCF at #20 Houston,ESPN,11:00 AM,2:30 PM,Y,Big XII,Big XII
 "Sat, Oct 03",Middle Tennessee at Kansas,ESPNU,11:00 AM,2:30 PM,N,Conference USA,Big XII
 "Sat, Oct 03",West Virginia at Iowa State,TNT,11:00 AM,2:30 PM,N,Big XII,Big XII
 "Sat, Oct 03",Stanford at Wake Forest,ACC Network,11:00 AM,2:30 PM,N,ACC,ACC
@@ -19,10 +19,10 @@
 "Sat, Oct 03",Michigan State at Wisconsin,B1G Network,11:30 AM,3:00 PM,N,Big Ten,Big Ten
 "Sat, Oct 03",Western Michigan at Buffalo,ESPN+,12:00 PM,3:30 PM,N,MAC,MAC
 "Sat, Oct 03",Toledo at Ball State,ESPN+,1:00 PM,4:30 PM,N,MAC,MAC
-"Sat, Oct 03",#7 Ohio State at #17 Iowa,CBS,2:30 PM,6:00 PM,Y,Big Ten,Big Ten
-"Sat, Oct 03",Auburn at #14 Tennessee,TBD,2:30 PM,6:00 PM,Y,SEC,SEC
-"Sat, Oct 03",#16 Louisville at NC State,ACC Network,2:30 PM,6:00 PM,Y,ACC,ACC
-"Sat, Oct 03",#21 Florida at #19 Missouri,ABC,2:30 PM,6:00 PM,Y,SEC,SEC
+"Sat, Oct 03",#5 Ohio State at #14 Iowa,CBS,2:30 PM,6:00 PM,Y,Big Ten,Big Ten
+"Sat, Oct 03",Auburn at #17 Tennessee,TBD,2:30 PM,6:00 PM,Y,SEC,SEC
+"Sat, Oct 03",Louisville at NC State,ACC Network,2:30 PM,6:00 PM,N,ACC,ACC
+"Sat, Oct 03",#8 Florida at #25 Missouri,ABC,2:30 PM,6:00 PM,Y,SEC,SEC
 "Sat, Oct 03",Cal at UNLV,CBSSN,2:30 PM,6:00 PM,N,ACC,Mountain West
 "Sat, Oct 03",Virginia at Florida State,ESPN2,2:30 PM,6:00 PM,N,ACC,ACC
 "Sat, Oct 03",Memphis at Charlotte,ESPN+,2:30 PM,6:00 PM,N,AAC,AAC
@@ -36,22 +36,22 @@
 "Sat, Oct 03",Marshall at James Madison,ESPNU,2:45 PM,6:15 PM,N,Sun Belt,Sun Belt
 "Sat, Oct 03",Maryland at Nebraska,FS1,3:00 PM,6:30 PM,N,Big Ten,Big Ten
 "Sat, Oct 03",UTEP at New Mexico,MW+,3:00 PM,6:30 PM,N,Mountain West,Mountain West
-"Sat, Oct 03",Kentucky at South Carolina,SEC Network,3:15 PM,6:45 PM,N,SEC,SEC
+"Sat, Oct 03",#24 Kentucky at South Carolina,SEC Network,3:15 PM,6:45 PM,Y,SEC,SEC
 "Sat, Oct 03",Purdue at Illinois,B1G Network,3:15 PM,6:45 PM,N,Big Ten,Big Ten
 "Sat, Oct 03",Oregon State at Colorado State,USA,5:00 PM,8:30 PM,N,Pac-12,Pac-12
 "Sat, Oct 03",Texas Southern at Florida Atlantic,ESPN+,5:00 PM,8:30 PM,N,SWAC,AAC
-"Sat, Oct 03",#9 BYU at TCU,ESPN,6:00 PM,9:30 PM,Y,Big XII,Big XII
-"Sat, Oct 03",Arkansas at #23 Texas A&M,ESPN2,6:00 PM,9:30 PM,Y,SEC,SEC
+"Sat, Oct 03",#10 BYU at TCU,ESPN,6:00 PM,9:30 PM,Y,Big XII,Big XII
+"Sat, Oct 03",Arkansas at Texas A&M,ESPN2,6:00 PM,9:30 PM,N,SEC,SEC
 "Sat, Oct 03",UTSA at Rice,ESPN+,6:00 PM,9:30 PM,N,AAC,AAC
 "Sat, Oct 03",Georgia Southern at Coastal Carolina,ESPN+,6:00 PM,9:30 PM,N,Sun Belt,Sun Belt
 "Sat, Oct 03",UL Monroe at South Alabama,ESPN+,6:00 PM,9:30 PM,N,Sun Belt,Sun Belt
-"Sat, Oct 03",#11 Texas Tech at Colorado,FOX,6:30 PM,10:00 PM,Y,Big XII,Big XII
-"Sat, Oct 03",Washington at #12 USC,NBC,6:30 PM,10:00 PM,Y,Big Ten,Big Ten
-"Sat, Oct 03",#15 Utah State at Boise State,CBSSN,6:30 PM,10:00 PM,Y,Pac-12,Pac-12
+"Sat, Oct 03",#12 Texas Tech at Colorado,FOX,6:30 PM,10:00 PM,Y,Big XII,Big XII
+"Sat, Oct 03",Washington at #18 USC,NBC,6:30 PM,10:00 PM,Y,Big Ten,Big Ten
+"Sat, Oct 03",Utah State at #22 Boise State,CBSSN,6:30 PM,10:00 PM,Y,Pac-12,Pac-12
 "Sat, Oct 03",Temple at South Florida,ESPNU,6:30 PM,10:00 PM,N,AAC,AAC
 "Sat, Oct 03",Army at Louisiana Tech,ESPN+,6:30 PM,10:00 PM,N,AAC,Sun Belt
-"Sat, Oct 03",McNeese at #10 LSU,SEC Network,6:45 PM,10:15 PM,Y,Southland,SEC
-"Sat, Oct 03",#5 Indiana at Rutgers,B1G Network,7:00 PM,10:30 PM,Y,Big Ten,Big Ten
+"Sat, Oct 03",McNeese at #11 LSU,SEC Network,6:45 PM,10:15 PM,Y,Southland,SEC
+"Sat, Oct 03",#6 Indiana at Rutgers,B1G Network,7:00 PM,10:30 PM,Y,Big Ten,Big Ten
 "Sat, Oct 03",Arkansas State at Louisiana,ESPN+,7:00 PM,10:30 PM,N,Sun Belt,Sun Belt
 "Sat, Oct 03",Fresno State at Washington State,USA,8:30 PM,12:00 AM,N,Pac-12,Pac-12
 "Sat, Oct 03",Baylor at Arizona State,ESPN,9:30 PM,1:00 AM,N,Big XII,Big XII
