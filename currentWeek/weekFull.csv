@@ -1,26 +1,33 @@
 Date,Matchup,TV_Network,Start_Time,End_Time,Top_25,Visitor_Conference,Home_Conference
+"Tue, Oct 06",Southern Miss at Troy,ESPN2,7:00 PM,10:30 PM,N,Sun Belt,Sun Belt
+"Wed, Oct 07",Jacksonville State at Kennesaw State,CBSSN,6:00 PM,9:30 PM,N,Conference USA,Conference USA
+"Wed, Oct 07",New Mexico State at Florida International,ESPN2,6:30 PM,10:00 PM,N,Conference USA,Conference USA
+"Thu, Oct 08",Sam Houston at Liberty,ESPNU,6:00 PM,9:30 PM,N,Conference USA,Conference USA
+"Thu, Oct 08",Missouri State at Western Kentucky,CBSSN,6:00 PM,9:30 PM,N,Conference USA,Conference USA
+"Thu, Oct 08",South Florida at UTSA,ESPN,6:30 PM,10:00 PM,N,AAC,AAC
+"Thu, Oct 08",South Alabama at Arkansas State,ESPN2,6:30 PM,10:00 PM,N,Sun Belt,Sun Belt
 "Fri, Oct 09",Florida State at Louisville,ESPN,6:00 PM,9:30 PM,N,ACC,ACC
-"Fri, Oct 09",Iowa at Washington,TBD,8:00 PM,11:30 PM,Y,Big Ten,Big Ten
+"Fri, Oct 09",#20 Iowa at Washington,TBD,8:00 PM,11:30 PM,Y,Big Ten,Big Ten
 "Fri, Oct 09",Washington State at Utah State,CW,8:00 PM,11:30 PM,N,Pac-12,Pac-12
 "Fri, Oct 09",Wyoming at San Jose State,CBSSN,8:00 PM,11:30 PM,N,Mountain West,Mountain West
-"Fri, Oct 09",Iowa State at BYU,ESPN,9:15 PM,12:45 AM,Y,Big XII,Big XII
-"Sat, Oct 10",Texas A&M at Missouri,ABC,11:00 AM,2:30 PM,Y,SEC,SEC
-"Sat, Oct 10",Indiana at Nebraska,FOX,11:00 AM,2:30 PM,Y,Big Ten,Big Ten
-"Sat, Oct 10",UCF at Oklahoma State,ESPN2,11:00 AM,2:30 PM,Y,Big XII,Big XII
+"Fri, Oct 09",Iowa State at #8 BYU,ESPN,9:15 PM,12:45 AM,Y,Big XII,Big XII
+"Sat, Oct 10",Texas A&M at #14 Missouri,ABC,11:00 AM,2:30 PM,Y,SEC,SEC
+"Sat, Oct 10",#7 Indiana at Nebraska,FOX,11:00 AM,2:30 PM,Y,Big Ten,Big Ten
+"Sat, Oct 10",UCF at #18 Oklahoma State,ESPN2,11:00 AM,2:30 PM,Y,Big XII,Big XII
 "Sat, Oct 10",Arizona at West Virginia,TNT,11:00 AM,2:30 PM,N,Big XII,Big XII
-"Sat, Oct 10",North Carolina at Pitt,ESPN,11:00 AM,2:30 PM,N,ACC,ACC
+"Sat, Oct 10",North Carolina at #25 Pitt,ESPN,11:00 AM,2:30 PM,Y,ACC,ACC
 "Sat, Oct 10",Wake Forest at NC State,CW,11:00 AM,2:30 PM,N,ACC,ACC
 "Sat, Oct 10",Tulane at Army,CBSSN,11:00 AM,2:30 PM,N,AAC,AAC
 "Sat, Oct 10",Sacramento State at Bowling Green,ESPN+,11:00 AM,2:30 PM,N,MAC,MAC
 "Sat, Oct 10",Ball State at Northwestern,BTN,11:30 AM,3:00 PM,N,MAC,Big Ten
-"Sat, Oct 10",South Carolina at Florida,SEC Network,11:45 AM,3:15 PM,Y,SEC,SEC
+"Sat, Oct 10",South Carolina at #16 Florida,SEC Network,11:45 AM,3:15 PM,Y,SEC,SEC
 "Sat, Oct 10",Old Dominion at Appalachian State,ESPN+,12:00 PM,3:30 PM,N,Sun Belt,Sun Belt
 "Sat, Oct 10",Miami (Ohio) at UMass,ESPN+,1:00 PM,4:30 PM,N,MAC,MAC
-"Sat, Oct 10",Texas at Oklahoma,ABC,2:30 PM,6:00 PM,Y,SEC,SEC
-"Sat, Oct 10",Stanford at Notre Dame,NBC,2:30 PM,6:00 PM,Y,ACC,Independents
-"Sat, Oct 10",Ole Miss at Vanderbilt,ESPN,2:30 PM,6:00 PM,Y,SEC,SEC
-"Sat, Oct 10",UCLA at Oregon,CBS,2:30 PM,6:00 PM,Y,Big Ten,Big Ten
-"Sat, Oct 10",Houston at Kansas State,FOX,2:30 PM,6:00 PM,Y,Big XII,Big XII
+"Sat, Oct 10",#1 Texas at Oklahoma,ABC,2:30 PM,6:00 PM,Y,SEC,SEC
+"Sat, Oct 10",Stanford at #3 Notre Dame,NBC,2:30 PM,6:00 PM,Y,ACC,Independents
+"Sat, Oct 10",#9 Ole Miss at Vanderbilt,ESPN,2:30 PM,6:00 PM,Y,SEC,SEC
+"Sat, Oct 10",#21 UCLA at #13 Oregon,CBS,2:30 PM,6:00 PM,Y,Big Ten,Big Ten
+"Sat, Oct 10",#22 Houston at Kansas State,FOX,2:30 PM,6:00 PM,Y,Big XII,Big XII
 "Sat, Oct 10",Duke at Georgia Tech,ESPN2,2:30 PM,6:00 PM,N,ACC,ACC
 "Sat, Oct 10",Virginia Tech at Cal,ACC Network,2:30 PM,6:00 PM,N,ACC,ACC
 "Sat, Oct 10",Illinois at Michigan State,FS1,2:30 PM,6:00 PM,N,Big Ten,Big Ten
@@ -32,28 +39,21 @@ Date,Matchup,TV_Network,Start_Time,End_Time,Top_25,Visitor_Conference,Home_Confe
 "Sat, Oct 10",Kent State at Western Michigan,ESPN+,2:30 PM,6:00 PM,N,MAC,MAC
 "Sat, Oct 10",UConn at Temple,ESPNU,2:45 PM,6:15 PM,N,Independents,AAC
 "Sat, Oct 10",Rice at East Carolina,ESPN+,3:00 PM,6:30 PM,N,AAC,AAC
-"Sat, Oct 10",Maryland at Ohio State,BTN,3:15 PM,6:45 PM,Y,Big Ten,Big Ten
-"Sat, Oct 10",Tennessee at Arkansas,SEC Network,3:15 PM,6:45 PM,Y,SEC,SEC
+"Sat, Oct 10",Maryland at #5 Ohio State,BTN,3:15 PM,6:45 PM,Y,Big Ten,Big Ten
+"Sat, Oct 10",#15 Tennessee at Arkansas,SEC Network,3:15 PM,6:45 PM,Y,SEC,SEC
 "Sat, Oct 10",San Diego State at Oregon State,USA,5:00 PM,8:30 PM,N,Pac-12,Pac-12
 "Sat, Oct 10",UAB at Memphis,ESPN2,6:00 PM,9:30 PM,N,AAC,AAC
-"Sat, Oct 10",LSU at Kentucky,ESPN,6:00 PM,9:30 PM,Y,SEC,SEC
+"Sat, Oct 10",#10 LSU at Kentucky,ESPN,6:00 PM,9:30 PM,Y,SEC,SEC
 "Sat, Oct 10",Nevada at UTEP,FS1,6:00 PM,9:30 PM,N,Mountain West,Mountain West
 "Sat, Oct 10",North Dakota State at UNLV,CW,6:00 PM,9:30 PM,N,Mountain West,Mountain West
 "Sat, Oct 10",Coastal Carolina at Marshall,ESPN+,6:00 PM,9:30 PM,N,Sun Belt,Sun Belt
 "Sat, Oct 10",James Madison at Georgia Southern,ESPNU,6:30 PM,10:00 PM,N,Sun Belt,Sun Belt
-"Sat, Oct 10",Georgia at Alabama,ABC,6:30 PM,10:00 PM,Y,SEC,SEC
-"Sat, Oct 10",USC at Penn State,NBC,6:30 PM,10:00 PM,Y,Big Ten,Big Ten
+"Sat, Oct 10",#2 Georgia at #6 Alabama,ABC,6:30 PM,10:00 PM,Y,SEC,SEC
+"Sat, Oct 10",#19 USC at Penn State,NBC,6:30 PM,10:00 PM,Y,Big Ten,Big Ten
 "Sat, Oct 10",Syracuse at Virginia,ACC Network,6:30 PM,10:00 PM,N,ACC,ACC
 "Sat, Oct 10",Air Force at Northern Illinois,CBSSN,6:30 PM,10:00 PM,N,Mountain West,Mountain West
 "Sat, Oct 10",Louisiana at Louisiana Tech,ESPN+,6:30 PM,10:00 PM,N,Sun Belt,Sun Belt
 "Sat, Oct 10",Minnesota at Purdue,BTN,7:00 PM,10:30 PM,N,Big Ten,Big Ten
-"Sat, Oct 10",Kansas at Utah,ESPN,9:15 PM,12:45 AM,Y,Big XII,Big XII
-"Sat, Oct 10",Boise State at Fresno State,CW,9:30 PM,1:00 AM,Y,Pac-12,Pac-12
+"Sat, Oct 10",Kansas at #12 Utah,ESPN,9:15 PM,12:45 AM,Y,Big XII,Big XII
+"Sat, Oct 10",#23 Boise State at Fresno State,CW,9:30 PM,1:00 AM,Y,Pac-12,Pac-12
 "Sat, Oct 10",Hawai'i at Arizona State,FS1,9:30 PM,1:00 AM,N,Mountain West,Big XII
-"Thu, Oct 08",Sam Houston at Liberty,ESPNU,6:00 PM,9:30 PM,N,Conference USA,Conference USA
-"Thu, Oct 08",Missouri State at Western Kentucky,CBSSN,6:00 PM,9:30 PM,N,Conference USA,Conference USA
-"Thu, Oct 08",South Florida at UTSA,ESPN,6:30 PM,10:00 PM,N,AAC,AAC
-"Thu, Oct 08",South Alabama at Arkansas State,ESPN2,6:30 PM,10:00 PM,N,Sun Belt,Sun Belt
-"Tue, Oct 06",Southern Miss at Troy,ESPN2,7:00 PM,10:30 PM,N,Sun Belt,Sun Belt
-"Wed, Oct 07",Jacksonville State at Kennesaw State,CBSSN,6:00 PM,9:30 PM,N,Conference USA,Conference USA
-"Wed, Oct 07",New Mexico State at Florida International,ESPN2,6:30 PM,10:00 PM,N,Conference USA,Conference USA
