@@ -790,6 +790,9 @@
             x: [duration],
             base: [start],
             name: game.Matchup,
+            textfont: {
+              size: 16
+            },
             marker: { 
               color: teamHexColor,
               line: { color: '#d4af37', width: 1.5 },
@@ -824,7 +827,7 @@
       });
 
       // Strict Row Height Math
-      const ROW_HEIGHT = 30;
+      const ROW_HEIGHT = 35;
       const TOP_AXIS_PADDING = 80;
       const totalRows = yTicks.length;
       
