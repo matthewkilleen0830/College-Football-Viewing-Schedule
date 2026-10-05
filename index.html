@@ -152,7 +152,7 @@
           toggleBtn.classList.add("attention-flash");
           setTimeout(() => {
             toggleBtn.classList.remove("attention-flash");
-          }, 2200);
+          }, 3500);
         }
 
         toggleBtn.addEventListener("click", function () {
@@ -792,7 +792,7 @@ function applyFilters() {
         autosize: true,
         margin: {
           l: 60,
-          r: 20,
+          r: 0,
           t: 60,
           b: 10
         },
@@ -813,6 +813,9 @@ function applyFilters() {
           showgrid: true,
           gridcolor: 'rgba(212, 175, 55, 0.15)',
           autorange: true,
+          autorangeoptions: {
+            maxallowed: 1505
+          },
           automargin: false
         },
         yaxis: {
